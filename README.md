@@ -18,7 +18,7 @@ Sebelum menjalankan proyek ini, pastikan sistem Anda telah terinstal software be
 
 ### 1. Clone Repositori & Masuk Direktori
 ```bash
-git clone https://github.com/abell56/instalasi-laravel.git
+git clone https://github.com/abell56/tugas-laravel.git
 cd booksales-api
 ```
 
