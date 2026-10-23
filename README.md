@@ -101,6 +101,19 @@ Proyek ini menerapkan konsep **Model-View-Controller (MVC)** untuk entitas **Gen
 
 ---
 
+## 📸 Hasil Tampilan Aplikasi
+
+### 1. Halaman Beranda (Home)
+![Halaman Beranda](docs/images/home.png)
+
+### 2. Halaman Daftar Genre
+![Daftar Genre Buku](docs/images/genres.png)
+
+### 3. Halaman Daftar Penulis (Author)
+![Daftar Penulis](docs/images/authors.png)
+
+---
+
 ## 📄 Struktur Direktori Utama
 * `app/Http/Controllers/` - Kontroler aplikasi (`GenreController.php`, `AuthorController.php`).
 * `app/Models/` - Model pengelola data (`Genre.php`, `Author.php`, `User.php`).
