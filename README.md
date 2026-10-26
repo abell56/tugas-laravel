@@ -58,7 +58,7 @@ Akses aplikasi melalui browser di: `http://127.0.0.1:8000`
 
 ## 📁 Implementasi Arsitektur MVC
 
-Proyek ini menerapkan konsep **Model-View-Controller (MVC)** untuk entitas **Genre** dan **Author**:
+Proyek ini menerapkan konsep **Model-View-Controller (MVC)** untuk entitas **Genre**, **Author**, dan **Book**:
 
 ```
 [ Browser / Client ]
@@ -67,27 +67,31 @@ Proyek ini menerapkan konsep **Model-View-Controller (MVC)** untuk entitas **Gen
 [ routes/web.php ]
         │
         ▼
-[ Controllers ] ──(Ambil Data)──► [ Models (Data Array) ]
- (GenreController, AuthorController)     (Genre.php, Author.php)
+[ Controllers ] ──(Ambil Data)──► [ Models (Database / Eloquent) ]
+ (GenreController, AuthorController,   (Genre.php, Author.php, Book.php)
+  BookController)
         │
         ▼ (Kirim Data ke View)
 [ Views (Blade) ]
- (genres/index.blade.php, authors/index.blade.php)
+ (genres/index.blade.php, authors/index.blade.php, books/index.blade.php)
 ```
 
 ### 1. Model (`app/Models/`)
-* **`Genre.php`**: Mengelola data array genre buku (`id`, `name`, `description`) dengan method `all()` dan `find($id)`.
-* **`Author.php`**: Mengelola data array penulis buku (`id`, `name`, `photo`, `bio`) dengan method `all()` dan `find($id)`.
+* **`Genre.php`**: Model Eloquent untuk tabel `genres` (`id`, `name`, `description`) dengan relasi `books()`.
+* **`Author.php`**: Model Eloquent untuk tabel `authors` (`id`, `name`, `photo`, `bio`) dengan relasi `books()`.
+* **`Book.php`**: Model Eloquent untuk tabel `books` (`id`, `description`, `price`, `stock`, `cover_photo`, `genre_id`, `author_id`) dengan relasi `author()` dan `genre()`.
 
 ### 2. Controller (`app/Http/Controllers/`)
 * **`GenreController.php`**: Mengambil data dari `Genre::all()` dan meneruskannya ke view `genres.index`.
 * **`AuthorController.php`**: Mengambil data dari `Author::all()` dan meneruskannya ke view `authors.index`.
+* **`BookController.php`**: Mengambil data dari `Book::with(['author', 'genre'])->get()` dan meneruskannya ke view `books.index`.
 
 ### 3. View (`resources/views/`)
-* **`layouts/main.blade.php`**: Kerangka layout utama berbasis Bootstrap 5 dengan navbar responsif dan navigasi aktif.
+* **`layouts/main.blade.php`**: Kerangka layout utama berbasis Bootstrap 5 dengan navbar responsif dan menu Home, Genre, Author, serta Book.
 * **`genres/index.blade.php`**: Halaman tabel daftar genre buku.
 * **`authors/index.blade.php`**: Halaman tabel daftar penulis (author) buku.
-* **`welcome.blade.php`**: Halaman beranda yang menghubungkan navigasi ke fitur Genre dan Author.
+* **`books/index.blade.php`**: Halaman tabel daftar buku lengkap dengan cover, judul/deskripsi, penulis, genre, harga, dan stok.
+* **`welcome.blade.php`**: Halaman beranda dengan navigasi ke fitur Genre, Author, dan Book.
 
 ---
 
@@ -98,6 +102,30 @@ Proyek ini menerapkan konsep **Model-View-Controller (MVC)** untuk entitas **Gen
 | `/` | `GET` | Closure (`welcome.blade.php`) | Halaman beranda (Home) |
 | `/genres` | `GET` | `GenreController@index` | Menampilkan daftar data Genre |
 | `/authors` | `GET` | `AuthorController@index` | Menampilkan daftar data Author |
+| `/books` | `GET` | `BookController@index` | Menampilkan daftar data Buku (Book) |
+
+---
+
+## 🗄️ Database Migration & Seeder
+
+Struktur tabel dan data awal (dummy) telah disediakan melalui fitur Laravel Migration dan Seeder:
+
+### 1. File Migration (`database/migrations/`)
+* `2026_10_26_000001_create_genres_table.php`
+* `2026_10_26_000002_create_authors_table.php`
+* `2026_10_26_000003_create_books_table.php`
+
+### 2. File Seeder (`database/seeders/`)
+* `GenreSeeder.php`: Memuat 5 data dummy kategori buku.
+* `AuthorSeeder.php`: Memuat 5 data dummy penulis buku.
+* `BookSeeder.php`: Memuat 5 data dummy buku (Bumi Manusia, Bumi, Laskar Pelangi, Perahu Kertas, Garis Waktu).
+* `DatabaseSeeder.php`: Menjalankan seluruh seeder di atas secara terurut.
+
+### 3. Perintah Eksekusi Migration & Seeding
+```bash
+php artisan migrate
+php artisan db:seed
+```
 
 ---
 

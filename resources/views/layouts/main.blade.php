@@ -57,6 +57,11 @@
                             <i class="bi bi-people"></i> Author
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('books*') ? 'active fw-semibold' : '' }}" href="{{ route('books.index') }}">
+                            <i class="bi bi-book"></i> Book
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
