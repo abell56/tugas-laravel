@@ -8,17 +8,14 @@ use Illuminate\Http\Request;
 class GenreController extends Controller
 {
     /**
-     * Menampilkan daftar data Genre dari Model ke View
+     * Menampilkan seluruh data Genre dalam format JSON
      */
     public function index()
     {
-        // Mengambil data array dari Model Genre
+        // Mengambil data dari Model Genre
         $genres = Genre::all();
 
-        // Mengirimkan data ke View genres.index
-        return view('genres.index', [
-            'title' => 'Daftar Genre Buku',
-            'genres' => $genres,
-        ]);
+        // Mengembalikan data dalam format JSON
+        return response()->json($genres, 200);
     }
 }

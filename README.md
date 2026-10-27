@@ -56,24 +56,23 @@ Akses aplikasi melalui browser di: `http://127.0.0.1:8000`
 
 ---
 
-## 📁 Implementasi Arsitektur MVC
+## 📁 Implementasi RESTful API
 
-Proyek ini menerapkan konsep **Model-View-Controller (MVC)** untuk entitas **Genre**, **Author**, dan **Book**:
+Proyek ini telah dialihkan ke arsitektur **RESTful API** berbasis JSON untuk entitas **Genre**, **Author**, dan **Book**:
 
 ```
-[ Browser / Client ]
+[ Client / Postman ]
         │
-        ▼ (Request HTTP)
-[ routes/web.php ]
+        ▼ (HTTP GET Request)
+[ routes/api.php ] (/api/...)
         │
         ▼
 [ Controllers ] ──(Ambil Data)──► [ Models (Database / Eloquent) ]
  (GenreController, AuthorController,   (Genre.php, Author.php, Book.php)
   BookController)
         │
-        ▼ (Kirim Data ke View)
-[ Views (Blade) ]
- (genres/index.blade.php, authors/index.blade.php, books/index.blade.php)
+        ▼ (Return JSON Response)
+[ JSON Output (HTTP 200 OK) ]
 ```
 
 ### 1. Model (`app/Models/`)
@@ -82,27 +81,22 @@ Proyek ini menerapkan konsep **Model-View-Controller (MVC)** untuk entitas **Gen
 * **`Book.php`**: Model Eloquent untuk tabel `books` (`id`, `description`, `price`, `stock`, `cover_photo`, `genre_id`, `author_id`) dengan relasi `author()` dan `genre()`.
 
 ### 2. Controller (`app/Http/Controllers/`)
-* **`GenreController.php`**: Mengambil data dari `Genre::all()` dan meneruskannya ke view `genres.index`.
-* **`AuthorController.php`**: Mengambil data dari `Author::all()` dan meneruskannya ke view `authors.index`.
-* **`BookController.php`**: Mengambil data dari `Book::with(['author', 'genre'])->get()` dan meneruskannya ke view `books.index`.
+* **`GenreController.php`**: Mengambil seluruh data dari `Genre::all()` dan mengembalikan output JSON.
+* **`AuthorController.php`**: Mengambil seluruh data dari `Author::all()` dan mengembalikan output JSON.
+* **`BookController.php`**: Mengambil seluruh data dari `Book::with(['author', 'genre'])->get()` dan mengembalikan output JSON.
 
-### 3. View (`resources/views/`)
-* **`layouts/main.blade.php`**: Kerangka layout utama berbasis Bootstrap 5 dengan navbar responsif dan menu Home, Genre, Author, serta Book.
-* **`genres/index.blade.php`**: Halaman tabel daftar genre buku.
-* **`authors/index.blade.php`**: Halaman tabel daftar penulis (author) buku.
-* **`books/index.blade.php`**: Halaman tabel daftar buku lengkap dengan cover, judul/deskripsi, penulis, genre, harga, dan stok.
-* **`welcome.blade.php`**: Halaman beranda dengan navigasi ke fitur Genre, Author, dan Book.
+### 3. File Routing (`routes/api.php`)
+Seluruh routing endpoint data dipindahkan ke `routes/api.php` dan terdaftar otomatis dengan prefiks `/api`.
 
 ---
 
-## 🌐 Daftar Endpoint / Rute Halaman
+## 🌐 Daftar Endpoint API
 
-| URL | Method | Controller & Method | Deskripsi |
-| :--- | :---: | :--- | :--- |
-| `/` | `GET` | Closure (`welcome.blade.php`) | Halaman beranda (Home) |
-| `/genres` | `GET` | `GenreController@index` | Menampilkan daftar data Genre |
-| `/authors` | `GET` | `AuthorController@index` | Menampilkan daftar data Author |
-| `/books` | `GET` | `BookController@index` | Menampilkan daftar data Buku (Book) |
+| Endpoint | Method | Controller & Method | Format Output | Deskripsi |
+| :--- | :---: | :--- | :---: | :--- |
+| `/api/books` | `GET` | `BookController@index` | `JSON` | Menampilkan seluruh data Buku beserta relasi Penulis & Genre |
+| `/api/authors` | `GET` | `AuthorController@index` | `JSON` | Menampilkan seluruh data Penulis (Author) |
+| `/api/genres` | `GET` | `GenreController@index` | `JSON` | Menampilkan seluruh data Kategori / Genre Buku |
 
 ---
 
@@ -143,7 +137,7 @@ php artisan db:seed
 ---
 
 ## 📄 Struktur Direktori Utama
-* `app/Http/Controllers/` - Kontroler aplikasi (`GenreController.php`, `AuthorController.php`).
-* `app/Models/` - Model pengelola data (`Genre.php`, `Author.php`, `User.php`).
-* `resources/views/` - Template tampilan Blade (layout, views genre & author).
-* `routes/web.php` - Definisi rute web aplikasi.
+* `app/Http/Controllers/` - Kontroler API (`GenreController.php`, `AuthorController.php`, `BookController.php`).
+* `app/Models/` - Model pengelola data (`Genre.php`, `Author.php`, `Book.php`, `User.php`).
+* `routes/api.php` - Definisi endpoint RESTful API aplikasi.
+* `routes/web.php` - Definisi rute root aplikasi.

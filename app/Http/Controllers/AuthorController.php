@@ -8,17 +8,14 @@ use Illuminate\Http\Request;
 class AuthorController extends Controller
 {
     /**
-     * Menampilkan daftar data Author dari Model ke View
+     * Menampilkan seluruh data Author dalam format JSON
      */
     public function index()
     {
-        // Mengambil data array dari Model Author
+        // Mengambil data dari Model Author
         $authors = Author::all();
 
-        // Mengirimkan data ke View authors.index
-        return view('authors.index', [
-            'title' => 'Daftar Penulis (Author)',
-            'authors' => $authors,
-        ]);
+        // Mengembalikan data dalam format JSON
+        return response()->json($authors, 200);
     }
 }
