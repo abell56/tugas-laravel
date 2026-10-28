@@ -81,12 +81,16 @@ Proyek ini telah dialihkan ke arsitektur **RESTful API** berbasis JSON untuk ent
 * **`Book.php`**: Model Eloquent untuk tabel `books` (`id`, `description`, `price`, `stock`, `cover_photo`, `genre_id`, `author_id`) dengan relasi `author()` dan `genre()`.
 
 ### 2. Controller (`app/Http/Controllers/`)
-* **`GenreController.php`**: Mengambil seluruh data dari `Genre::all()` dan mengembalikan output JSON.
-* **`AuthorController.php`**: Mengambil seluruh data dari `Author::all()` dan mengembalikan output JSON.
+* **`GenreController.php`**: Mengelola data kategori/genre buku:
+  * `index()`: Mengambil seluruh data (`Genre::all()`) dalam format JSON.
+  * `store()`: Memvalidasi dan menyimpan data genre baru ke database (HTTP 201).
+* **`AuthorController.php`**: Mengelola data penulis (author):
+  * `index()`: Mengambil seluruh data (`Author::all()`) dalam format JSON.
+  * `store()`: Memvalidasi dan menyimpan data author baru ke database (HTTP 201).
 * **`BookController.php`**: Mengambil seluruh data dari `Book::with(['author', 'genre'])->get()` dan mengembalikan output JSON.
 
 ### 3. File Routing (`routes/api.php`)
-Seluruh routing endpoint data dipindahkan ke `routes/api.php` dan terdaftar otomatis dengan prefiks `/api`.
+Seluruh routing endpoint data didefinisikan di `routes/api.php` dan terdaftar otomatis dengan prefiks `/api`.
 
 ---
 
@@ -96,7 +100,9 @@ Seluruh routing endpoint data dipindahkan ke `routes/api.php` dan terdaftar otom
 | :--- | :---: | :--- | :---: | :--- |
 | `/api/books` | `GET` | `BookController@index` | `JSON` | Menampilkan seluruh data Buku beserta relasi Penulis & Genre |
 | `/api/authors` | `GET` | `AuthorController@index` | `JSON` | Menampilkan seluruh data Penulis (Author) |
+| `/api/authors` | `POST` | `AuthorController@store` | `JSON` | Menambahkan data Penulis baru (name, photo, bio) |
 | `/api/genres` | `GET` | `GenreController@index` | `JSON` | Menampilkan seluruh data Kategori / Genre Buku |
+| `/api/genres` | `POST` | `GenreController@store` | `JSON` | Menambahkan data Genre baru (name, description) |
 
 ---
 
