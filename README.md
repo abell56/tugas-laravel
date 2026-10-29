@@ -82,15 +82,21 @@ Proyek ini telah dialihkan ke arsitektur **RESTful API** berbasis JSON untuk ent
 
 ### 2. Controller (`app/Http/Controllers/`)
 * **`GenreController.php`**: Mengelola data kategori/genre buku:
-  * `index()`: Mengambil seluruh data (`Genre::all()`) dalam format JSON.
+  * `index()`: Mengambil seluruh data (`Genre::all()`) dalam format JSON (HTTP 200).
   * `store()`: Memvalidasi dan menyimpan data genre baru ke database (HTTP 201).
+  * `show()`: Menampilkan detail genre berdasarkan ID atau pesan error 404 jika tidak ditemukan.
+  * `update()`: Memvalidasi dan memperbarui data genre berdasarkan ID atau pesan error 404 jika tidak ditemukan (HTTP 200).
+  * `destroy()`: Menghapus data genre berdasarkan ID atau pesan error 404 jika tidak ditemukan (HTTP 200).
 * **`AuthorController.php`**: Mengelola data penulis (author):
-  * `index()`: Mengambil seluruh data (`Author::all()`) dalam format JSON.
+  * `index()`: Mengambil seluruh data (`Author::all()`) dalam format JSON (HTTP 200).
   * `store()`: Memvalidasi dan menyimpan data author baru ke database (HTTP 201).
+  * `show()`: Menampilkan detail author berdasarkan ID atau pesan error 404 jika tidak ditemukan.
+  * `update()`: Memvalidasi dan memperbarui data author berdasarkan ID atau pesan error 404 jika tidak ditemukan (HTTP 200).
+  * `destroy()`: Menghapus data author berdasarkan ID atau pesan error 404 jika tidak ditemukan (HTTP 200).
 * **`BookController.php`**: Mengambil seluruh data dari `Book::with(['author', 'genre'])->get()` dan mengembalikan output JSON.
 
 ### 3. File Routing (`routes/api.php`)
-Seluruh routing endpoint data didefinisikan di `routes/api.php` dan terdaftar otomatis dengan prefiks `/api`.
+Seluruh routing endpoint data didefinisikan menggunakan `Route::apiResource` di `routes/api.php` dan terdaftar otomatis dengan prefiks `/api`.
 
 ---
 
@@ -101,8 +107,14 @@ Seluruh routing endpoint data didefinisikan di `routes/api.php` dan terdaftar ot
 | `/api/books` | `GET` | `BookController@index` | `JSON` | Menampilkan seluruh data Buku beserta relasi Penulis & Genre |
 | `/api/authors` | `GET` | `AuthorController@index` | `JSON` | Menampilkan seluruh data Penulis (Author) |
 | `/api/authors` | `POST` | `AuthorController@store` | `JSON` | Menambahkan data Penulis baru (name, photo, bio) |
+| `/api/authors/{id}` | `GET` | `AuthorController@show` | `JSON` | Menampilkan detail data Penulis berdasarkan ID (404 jika tidak ditemukan) |
+| `/api/authors/{id}` | `PUT/PATCH` | `AuthorController@update` | `JSON` | Memperbarui data Penulis berdasarkan ID (404 jika tidak ditemukan) |
+| `/api/authors/{id}` | `DELETE` | `AuthorController@destroy` | `JSON` | Menghapus data Penulis berdasarkan ID (404 jika tidak ditemukan) |
 | `/api/genres` | `GET` | `GenreController@index` | `JSON` | Menampilkan seluruh data Kategori / Genre Buku |
 | `/api/genres` | `POST` | `GenreController@store` | `JSON` | Menambahkan data Genre baru (name, description) |
+| `/api/genres/{id}` | `GET` | `GenreController@show` | `JSON` | Menampilkan detail data Genre berdasarkan ID (404 jika tidak ditemukan) |
+| `/api/genres/{id}` | `PUT/PATCH` | `GenreController@update` | `JSON` | Memperbarui data Genre berdasarkan ID (404 jika tidak ditemukan) |
+| `/api/genres/{id}` | `DELETE` | `GenreController@destroy` | `JSON` | Menghapus data Genre berdasarkan ID (404 jika tidak ditemukan) |
 
 ---
 

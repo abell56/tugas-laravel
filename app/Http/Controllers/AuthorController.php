@@ -40,4 +40,82 @@ class AuthorController extends Controller
             'data' => $author,
         ], 201);
     }
+
+    /**
+     * Menampilkan detail data Author berdasarkan ID
+     */
+    public function show($id)
+    {
+        // Mencari data author berdasarkan ID
+        $author = Author::find($id);
+
+        // Validasi jika data tidak ditemukan
+        if (!$author) {
+            return response()->json([
+                'message' => 'Data author tidak ditemukan',
+            ], 404);
+        }
+
+        // Mengembalikan respons detail data author
+        return response()->json([
+            'message' => 'Detail data author',
+            'data' => $author,
+        ], 200);
+    }
+
+    /**
+     * Memperbarui data Author berdasarkan ID
+     */
+    public function update(Request $request, $id)
+    {
+        // Mencari data author berdasarkan ID
+        $author = Author::find($id);
+
+        // Validasi jika data tidak ditemukan
+        if (!$author) {
+            return response()->json([
+                'message' => 'Data author tidak ditemukan',
+            ], 404);
+        }
+
+        // Validasi input data
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'photo' => 'required|string|max:255',
+            'bio' => 'required|string',
+        ]);
+
+        // Memperbarui data author
+        $author->update($validated);
+
+        // Mengembalikan respons data berhasil diperbarui
+        return response()->json([
+            'message' => 'Data author berhasil diperbarui',
+            'data' => $author,
+        ], 200);
+    }
+
+    /**
+     * Menghapus data Author berdasarkan ID
+     */
+    public function destroy($id)
+    {
+        // Mencari data author berdasarkan ID
+        $author = Author::find($id);
+
+        // Validasi jika data tidak ditemukan
+        if (!$author) {
+            return response()->json([
+                'message' => 'Data author tidak ditemukan',
+            ], 404);
+        }
+
+        // Menghapus data author
+        $author->delete();
+
+        // Mengembalikan respons data berhasil dihapus
+        return response()->json([
+            'message' => 'Data author berhasil dihapus',
+        ], 200);
+    }
 }
