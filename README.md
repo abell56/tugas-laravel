@@ -1,6 +1,6 @@
 # Book Sales (booksales-api)
 
-Aplikasi pengelolaan data penjualan buku dan katalog berbasis framework Laravel dengan implementasi arsitektur **Model-View-Controller (MVC)**.
+Aplikasi pengelolaan data penjualan buku dan katalog berbasis framework Laravel dengan implementasi arsitektur **Model-View-Controller (MVC)** dan **RESTful API**.
 
 ---
 
@@ -56,67 +56,81 @@ Akses aplikasi melalui browser di: `http://127.0.0.1:8000`
 
 ---
 
-## 📁 Implementasi RESTful API
+## 📁 Implementasi Arsitektur RESTful API & Relasi Model
 
-Proyek ini telah dialihkan ke arsitektur **RESTful API** berbasis JSON untuk entitas **Genre**, **Author**, dan **Book**:
+Proyek ini mengimplementasikan arsitektur **RESTful API** berbasis JSON untuk entitas **Book**, **Author**, dan **Genre** dengan relasi antar Model:
 
 ```
 [ Client / Postman ]
         │
-        ▼ (HTTP GET Request)
-[ routes/api.php ] (/api/...)
+        ├─► [ routes/api.php ]
+        │         │
+        │         ├─► [ Middleware: admin ] (Read All & Destroy)
+        │         └─► [ Middleware: customer ] (Create, Update, & Show)
         │
         ▼
-[ Controllers ] ──(Ambil Data)──► [ Models (Database / Eloquent) ]
- (GenreController, AuthorController,   (Genre.php, Author.php, Book.php)
-  BookController)
-        │
-        ▼ (Return JSON Response)
-[ JSON Output (HTTP 200 OK) ]
+[ Controllers ] ──(Eager Loading: with)──► [ Models (Database / Eloquent) ]
+ (BookController, AuthorController,         (Book.php, Author.php, Genre.php)
+  GenreController)                                  │
+                                             (foreignId relation)
+                                                    │
+        ◄─────────────────(Return JSON Response)────┘
+[ JSON Output (HTTP 200 / 201 / 401 / 403 / 404) ]
 ```
 
-### 1. Model (`app/Models/`)
-* **`Genre.php`**: Model Eloquent untuk tabel `genres` (`id`, `name`, `description`) dengan relasi `books()`.
-* **`Author.php`**: Model Eloquent untuk tabel `authors` (`id`, `name`, `photo`, `bio`) dengan relasi `books()`.
-* **`Book.php`**: Model Eloquent untuk tabel `books` (`id`, `description`, `price`, `stock`, `cover_photo`, `genre_id`, `author_id`) dengan relasi `author()` dan `genre()`.
+### 1. Mengambil Data dari Relasi Model (Eager Loading)
+Data relasi antar model diambil secara optimal menggunakan fitur Eager Loading (`with()`):
+* **`Book`**: Memuat relasi ke model `Author` (`belongsTo`) dan `Genre` (`belongsTo`):
+  * `Book::with(['author', 'genre'])->get()` (Read All)
+  * `Book::with(['author', 'genre'])->find($id)` (Show Detail)
+* **`Author`**: Memuat relasi ke model `Book` (`hasMany`):
+  * `Author::with('books')->get()` (Read All)
+  * `Author::with('books')->find($id)` (Show Detail)
+* **`Genre`**: Memuat relasi ke model `Book` (`hasMany`):
+  * `Genre::with('books')->get()` (Read All)
+  * `Genre::with('books')->find($id)` (Show Detail)
 
-### 2. Controller (`app/Http/Controllers/`)
-* **`GenreController.php`**: Mengelola data kategori/genre buku:
-  * `index()`: Mengambil seluruh data (`Genre::all()`) dalam format JSON (HTTP 200).
-  * `store()`: Memvalidasi dan menyimpan data genre baru ke database (HTTP 201).
-  * `show()`: Menampilkan detail genre berdasarkan ID atau pesan error 404 jika tidak ditemukan.
-  * `update()`: Memvalidasi dan memperbarui data genre berdasarkan ID atau pesan error 404 jika tidak ditemukan (HTTP 200).
-  * `destroy()`: Menghapus data genre berdasarkan ID atau pesan error 404 jika tidak ditemukan (HTTP 200).
-* **`AuthorController.php`**: Mengelola data penulis (author):
-  * `index()`: Mengambil seluruh data (`Author::all()`) dalam format JSON (HTTP 200).
-  * `store()`: Memvalidasi dan menyimpan data author baru ke database (HTTP 201).
-  * `show()`: Menampilkan detail author berdasarkan ID atau pesan error 404 jika tidak ditemukan.
-  * `update()`: Memvalidasi dan memperbarui data author berdasarkan ID atau pesan error 404 jika tidak ditemukan (HTTP 200).
-  * `destroy()`: Menghapus data author berdasarkan ID atau pesan error 404 jika tidak ditemukan (HTTP 200).
-* **`BookController.php`**: Mengambil seluruh data dari `Book::with(['author', 'genre'])->get()` dan mengembalikan output JSON.
+### 2. Mengatur Relasi di Migration dengan `foreignId`
+Relasi antar tabel diatur menggunakan `foreignId()` pada migration tabel `books` (`database/migrations/2026_10_26_000003_create_books_table.php`):
+```php
+// Mengatur relasi ke tabel genres menggunakan foreignId
+$table->foreignId('genre_id')->constrained('genres')->onDelete('cascade');
 
-### 3. File Routing (`routes/api.php`) & Middleware
+// Mengatur relasi ke tabel authors menggunakan foreignId
+$table->foreignId('author_id')->constrained('authors')->onDelete('cascade');
+```
+
+### 3. Pengaturan Hak Akses Routing (`routes/api.php`)
 Routing endpoint dikelompokkan berdasarkan hak akses menggunakan middleware:
-* **Public**: Read All (`index`) dan Show (`show`) untuk Author dan Genre serta Buku (`books`) dapat diakses tanpa autentikasi.
-* **Admin Only**: Create (`store`), Update (`update`), dan Destroy (`destroy`) diproteksi dengan middleware `admin` (`App\Http\Middleware\AdminMiddleware`).
+* **Admin Only (`admin`)**:
+  * **Read All (`index`)**: Menampilkan seluruh data entitas.
+  * **Destroy (`destroy`)**: Menghapus data entitas berdasarkan ID.
+* **Customer Authenticated Only (`customer`)**:
+  * **Create (`store`)**: Menambahkan data baru.
+  * **Update (`update`)**: Memperbarui data yang ada.
+  * **Show (`show`)**: Menampilkan detail data entitas beserta relasinya.
 
 ---
 
 ## 🌐 Daftar Endpoint API
 
-| Endpoint | Method | Middleware | Controller & Method | Format Output | Deskripsi |
+| Endpoint | Method | Middleware | Controller & Method | Format Output | Deskripsi & Hak Akses |
 | :--- | :---: | :---: | :--- | :---: | :--- |
-| `/api/books` | `GET` | Public | `BookController@index` | `JSON` | Menampilkan seluruh data Buku beserta relasi Penulis & Genre |
-| `/api/authors` | `GET` | Public | `AuthorController@index` | `JSON` | Menampilkan seluruh data Penulis (Author) |
-| `/api/authors` | `POST` | `admin` | `AuthorController@store` | `JSON` | Menambahkan data Penulis baru (Khusus Admin) |
-| `/api/authors/{id}` | `GET` | Public | `AuthorController@show` | `JSON` | Menampilkan detail Penulis berdasarkan ID |
-| `/api/authors/{id}` | `PUT/PATCH` | `admin` | `AuthorController@update` | `JSON` | Memperbarui data Penulis berdasarkan ID (Khusus Admin) |
-| `/api/authors/{id}` | `DELETE` | `admin` | `AuthorController@destroy` | `JSON` | Menghapus data Penulis berdasarkan ID (Khusus Admin) |
-| `/api/genres` | `GET` | Public | `GenreController@index` | `JSON` | Menampilkan seluruh data Kategori / Genre Buku |
-| `/api/genres` | `POST` | `admin` | `GenreController@store` | `JSON` | Menambahkan data Genre baru (Khusus Admin) |
-| `/api/genres/{id}` | `GET` | Public | `GenreController@show` | `JSON` | Menampilkan detail Genre berdasarkan ID |
-| `/api/genres/{id}` | `PUT/PATCH` | `admin` | `GenreController@update` | `JSON` | Memperbarui data Genre berdasarkan ID (Khusus Admin) |
-| `/api/genres/{id}` | `DELETE` | `admin` | `GenreController@destroy` | `JSON` | Menghapus data Genre berdasarkan ID (Khusus Admin) |
+| `/api/books` | `GET` | `admin` | `BookController@index` | `JSON` | Read All Buku beserta relasi Penulis & Genre (Admin) |
+| `/api/books` | `POST` | `customer` | `BookController@store` | `JSON` | Create Buku baru (Customer Terautentikasi) |
+| `/api/books/{id}` | `GET` | `customer` | `BookController@show` | `JSON` | Show Detail Buku beserta relasi (Customer Terautentikasi) |
+| `/api/books/{id}` | `PUT/PATCH` | `customer` | `BookController@update` | `JSON` | Update Buku berdasarkan ID (Customer Terautentikasi) |
+| `/api/books/{id}` | `DELETE` | `admin` | `BookController@destroy` | `JSON` | Destroy Buku berdasarkan ID (Admin) |
+| `/api/authors` | `GET` | `admin` | `AuthorController@index` | `JSON` | Read All Penulis beserta daftar bukunya (Admin) |
+| `/api/authors` | `POST` | `customer` | `AuthorController@store` | `JSON` | Create Penulis baru (Customer Terautentikasi) |
+| `/api/authors/{id}` | `GET` | `customer` | `AuthorController@show` | `JSON` | Show Detail Penulis beserta daftar bukunya (Customer Terautentikasi) |
+| `/api/authors/{id}` | `PUT/PATCH` | `customer` | `AuthorController@update` | `JSON` | Update Penulis berdasarkan ID (Customer Terautentikasi) |
+| `/api/authors/{id}` | `DELETE` | `admin` | `AuthorController@destroy` | `JSON` | Destroy Penulis berdasarkan ID (Admin) |
+| `/api/genres` | `GET` | `admin` | `GenreController@index` | `JSON` | Read All Genre/Kategori beserta daftar bukunya (Admin) |
+| `/api/genres` | `POST` | `customer` | `GenreController@store` | `JSON` | Create Genre baru (Customer Terautentikasi) |
+| `/api/genres/{id}` | `GET` | `customer` | `GenreController@show` | `JSON` | Show Detail Genre beserta daftar bukunya (Customer Terautentikasi) |
+| `/api/genres/{id}` | `PUT/PATCH` | `customer` | `GenreController@update` | `JSON` | Update Genre berdasarkan ID (Customer Terautentikasi) |
+| `/api/genres/{id}` | `DELETE` | `admin` | `GenreController@destroy` | `JSON` | Destroy Genre berdasarkan ID (Admin) |
 
 ---
 
@@ -125,39 +139,28 @@ Routing endpoint dikelompokkan berdasarkan hak akses menggunakan middleware:
 Struktur tabel dan data awal (dummy) telah disediakan melalui fitur Laravel Migration dan Seeder:
 
 ### 1. File Migration (`database/migrations/`)
-* `2026_10_26_000001_create_genres_table.php`
-* `2026_10_26_000002_create_authors_table.php`
-* `2026_10_26_000003_create_books_table.php`
+* `0001_01_01_000000_create_users_table.php`: Tabel `users` dengan kolom `role` (`admin` / `customer`).
+* `2026_10_26_000001_create_genres_table.php`: Tabel `genres`.
+* `2026_10_26_000002_create_authors_table.php`: Tabel `authors`.
+* `2026_10_26_000003_create_books_table.php`: Tabel `books` dengan foreignId relasi `genre_id` dan `author_id`.
 
 ### 2. File Seeder (`database/seeders/`)
-* `GenreSeeder.php`: Memuat 5 data dummy kategori buku.
-* `AuthorSeeder.php`: Memuat 5 data dummy penulis buku.
-* `BookSeeder.php`: Memuat 5 data dummy buku (Bumi Manusia, Bumi, Laskar Pelangi, Perahu Kertas, Garis Waktu).
-* `DatabaseSeeder.php`: Menjalankan seluruh seeder di atas secara terurut.
+* `UserSeeder.php`: Akun `admin@booksales.test` dan `customer@booksales.test`.
+* `GenreSeeder.php`: 5 kategori buku dummy.
+* `AuthorSeeder.php`: 5 penulis dummy.
+* `BookSeeder.php`: 5 buku dummy dengan relasi genre dan author.
+* `DatabaseSeeder.php`: Menjalankan seluruh seeder secara terurut.
 
 ### 3. Perintah Eksekusi Migration & Seeding
 ```bash
-php artisan migrate
-php artisan db:seed
+php artisan migrate:fresh --seed
 ```
 
 ---
 
-## 📸 Hasil Tampilan Aplikasi
-
-### 1. Halaman Beranda (Home)
-![Halaman Beranda](docs/images/home.png)
-
-### 2. Halaman Daftar Genre
-![Daftar Genre Buku](docs/images/genres.png)
-
-### 3. Halaman Daftar Penulis (Author)
-![Daftar Penulis](docs/images/authors.png)
-
----
-
 ## 📄 Struktur Direktori Utama
-* `app/Http/Controllers/` - Kontroler API (`GenreController.php`, `AuthorController.php`, `BookController.php`).
-* `app/Models/` - Model pengelola data (`Genre.php`, `Author.php`, `Book.php`, `User.php`).
-* `routes/api.php` - Definisi endpoint RESTful API aplikasi.
-* `routes/web.php` - Definisi rute root aplikasi.
+* `app/Http/Controllers/` - Kontroler API (`BookController.php`, `AuthorController.php`, `GenreController.php`).
+* `app/Http/Middleware/` - Middleware proteksi (`AdminMiddleware.php`, `CustomerMiddleware.php`).
+* `app/Models/` - Model Eloquent (`Book.php`, `Author.php`, `Genre.php`, `User.php`).
+* `database/migrations/` - Migration skema database dengan relasi `foreignId`.
+* `routes/api.php` - Definisi endpoint RESTful API aplikasi sesuai hak akses Admin & Customer.

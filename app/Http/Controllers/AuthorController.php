@@ -4,23 +4,24 @@ namespace App\Http\Controllers;
 
 use App\Models\Author;
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 
 class AuthorController extends Controller
 {
     /**
-     * Menampilkan seluruh data Author dalam format JSON
+     * Menampilkan seluruh data Author beserta relasi buku dalam format JSON (Read All).
      */
     public function index()
     {
-        // Mengambil seluruh data dari Model Author
-        $authors = Author::all();
+        // Mengambil seluruh data dari Model Author beserta relasi buku (books)
+        $authors = Author::with('books')->get();
 
         // Mengembalikan data dalam format JSON
         return response()->json($authors, 200);
     }
 
     /**
-     * Menyimpan data Author baru ke database
+     * Menyimpan data Author baru ke database (Create).
      */
     public function store(Request $request)
     {
@@ -42,12 +43,12 @@ class AuthorController extends Controller
     }
 
     /**
-     * Menampilkan detail data Author berdasarkan ID
+     * Menampilkan detail data Author berdasarkan ID beserta relasi buku (Show).
      */
     public function show($id)
     {
-        // Mencari data author berdasarkan ID
-        $author = Author::find($id);
+        // Mencari data author berdasarkan ID beserta relasi Model buku (books)
+        $author = Author::with('books')->find($id);
 
         // Validasi jika data tidak ditemukan
         if (!$author) {
@@ -64,7 +65,7 @@ class AuthorController extends Controller
     }
 
     /**
-     * Memperbarui data Author berdasarkan ID
+     * Memperbarui data Author berdasarkan ID (Update).
      */
     public function update(Request $request, $id)
     {
@@ -80,13 +81,14 @@ class AuthorController extends Controller
 
         // Validasi input data
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'photo' => 'required|string|max:255',
-            'bio' => 'required|string',
+            'name' => 'sometimes|required|string|max:255',
+            'photo' => 'sometimes|required|string|max:255',
+            'bio' => 'sometimes|required|string',
         ]);
 
         // Memperbarui data author
         $author->update($validated);
+        $author->load('books');
 
         // Mengembalikan respons data berhasil diperbarui
         return response()->json([
@@ -96,7 +98,7 @@ class AuthorController extends Controller
     }
 
     /**
-     * Menghapus data Author berdasarkan ID
+     * Menghapus data Author berdasarkan ID (Destroy).
      */
     public function destroy($id)
     {
@@ -110,12 +112,23 @@ class AuthorController extends Controller
             ], 404);
         }
 
-        // Menghapus data author
-        $author->delete();
+        try {
+            // Menghapus data author
+            $author->delete();
 
-        // Mengembalikan respons data berhasil dihapus
-        return response()->json([
-            'message' => 'Data author berhasil dihapus',
-        ], 200);
+            // Mengembalikan respons data berhasil dihapus
+            return response()->json([
+                'message' => 'Data author berhasil dihapus',
+            ], 200);
+        } catch (QueryException $e) {
+            if ($e->getCode() == 23000 || str_contains($e->getMessage(), '1451')) {
+                return response()->json([
+                    'message' => 'Gagal menghapus data: Penulis ini tidak dapat dihapus karena masih memiliki relasi data buku.',
+                    'error' => 'Integrity constraint violation: Data sedang digunakan pada tabel lain.'
+                ], 409);
+            }
+
+            throw $e;
+        }
     }
 }

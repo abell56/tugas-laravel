@@ -12,7 +12,10 @@ class AdminMiddleware
      * Handle an incoming request.
      *
      * Memeriksa apakah pengguna memiliki hak akses sebagai admin.
-     * Dapat memeriksa autentikasi user (role === 'admin') atau header 'X-Role' untuk pengujian.
+     * Mendukung:
+     * 1. Pengguna login dengan role === 'admin'
+     * 2. Header 'Authorization: Bearer <admin-token>'
+     * 3. Header 'X-Role: admin' atau input 'role=admin' (untuk kemudahan pengujian di Postman)
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
@@ -23,12 +26,12 @@ class AdminMiddleware
             return $next($request);
         }
 
-        // 2. Cek jika terdapat header 'X-Role: admin' atau input role admin (untuk kemudahan testing di Postman)
-        if (
-            $request->header('X-Role') === 'admin' ||
-            $request->header('role') === 'admin' ||
-            $request->input('role') === 'admin'
-        ) {
+        // 2. Ambil parameter role atau header
+        $roleHeader = strtolower($request->header('X-Role') ?? $request->header('role') ?? $request->input('role') ?? '');
+        $authHeader = $request->header('Authorization');
+
+        // 3. Cek jika terdapat identitas role 'admin'
+        if ($roleHeader === 'admin' || ($authHeader && str_contains(strtolower($authHeader), 'admin'))) {
             return $next($request);
         }
 
