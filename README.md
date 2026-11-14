@@ -1,35 +1,102 @@
-# Book Sales (booksales-api)
+# 📚 Bookstore - Fullstack Web Application (Laravel 12 + React.js)
 
-Aplikasi pengelolaan data penjualan buku dan katalog berbasis framework Laravel dengan implementasi arsitektur **Model-View-Controller (MVC)** dan **RESTful API**.
+Aplikasi Toko Buku Online Modern Fullstack yang menggabungkan kekuatan **Laravel 12** sebagai RESTful API Backend dan **React 19 SPA (Single Page Application)** dengan **Vite** serta **Bootstrap 5** sebagai antarmuka pengguna interaktif. Dilengkapi sistem autentikasi database nyata, integrasi gateway pembayaran **Midtrans Snap**, keranjang belanja (*shopping cart*), riwayat transaksi, hingga dashboard monitoring administrator.
+
+---
+
+## 🌟 Fitur Utama Aplikasi
+
+### 👤 1. Skenario Pengguna / Customer
+* **Autentikasi Akun**: Registrasi pengguna baru dan Login tersinkronisasi penuh dengan tabel `users` di database.
+* **Katalog & Live Search**: Pencarian buku secara *real-time* berdasarkan judul, deskripsi, penulis, serta filter kategori/genre.
+* **Keranjang Belanja (*Shopping Cart*)**: Tambah buku ke keranjang (*Add to Cart*), modifikasi jumlah eksemplar, badge counter dinamis di navbar, dan penyimpanan persisten di `localStorage`.
+* **Pembayaran Digital (Midtrans Gateway)**:
+  * Terintegrasi dengan **Midtrans Snap** (Sandbox).
+  * Dilengkapi **Modal Simulator Pembayaran Interaktif** (QRIS, Virtual Account BCA, Mandiri, serta Bayar di Tempat / COD).
+  * Pemotongan stok buku secara otomatis saat transaksi berhasil.
+* **Riwayat Pesanan Pelanggan**: Halaman profil akun menampilkan daftar nomor pesanan (`ORD-YYYYMMDD-XXXX`), status pembayaran, detail buku, serta tombol *Beli Lagi*.
+* **Profil Toko Buku (About Us)**: Halaman profil perusahaan lengkap dengan visi, misi, statistik pencapaian, dan pilar keunggulan.
+* **Kontak ke Admin (Contact to Admin)**: Formulir pengiriman pesan, kritik, dan saran yang langsung tersimpan di database inbox admin.
+* **Halaman Tim Kami (Team)**: Profil tim pengembang dan pengelola Bookstore.
+
+### 🛡️ 2. Skenario Administrator (Dashboard `/admin`)
+* **Kontrol Katalog Buku (CRUD)**: Tambah judul buku baru, edit informasi (harga, stok, cover, genre, penulis), dan hapus buku.
+* **Manajemen Master Data**: Pengelolaan kategori/genre dan penulis (*author*) buku.
+* **Monitoring Pesanan Masuk**: Pantau daftar transaksi pesanan pelanggan secara transparan lengkap dengan perhitungan total omzet penjualan.
+* **Monitoring Pengguna & Ubah Role**:
+  * Melihat seluruh daftar pengguna terdaftar di sistem.
+  * Fitur **Ubah Role** langsung untuk mempromosikan customer menjadi admin atau sebaliknya.
+* **Inbox Pesan Masuk (Contact Inbox)**: Membaca pesan masuk dari pelanggan dengan fitur filter pencarian, balas langsung via email (`mailto:`), dan hapus pesan.
+* **Ringkasan Metrik Bisnis**: Kartu statistik *live* untuk total buku, pesanan masuk, total pengguna, pesan masuk, dan total kategori.
+
+---
+
+## 🏗️ Arsitektur Teknologi
+
+```
+[ Browser / Client ]
+        │
+        ├──► [ React 19 SPA (Vite + React Router + Bootstrap 5) ]
+        │         │
+        │         ├─► Public Routes: Home, About, Book, Cart, Team, Contact, Login, Register
+        │         ├─► Customer Protected: Profile (Riwayat Pesanan)
+        │         └─► Admin Protected: Admin Panel (Katalog, Pesanan, User, Genre, Author, Inbox)
+        │
+        ▼ (Axios HTTP / JSON)
+[ Laravel 12 Backend API ]
+        │
+        ├─► routes/web.php (Single-Entry Blade View 'app.blade.php')
+        ├─► routes/api.php (RESTful Endpoints)
+        ├─► Midtrans Snap Integration (PaymentController)
+        │
+        ▼ (Eloquent ORM)
+[ MySQL / MariaDB Database: db_penjualan_buku ]
+  ├── users (id, name, email, password, role)
+  ├── books (id, description, price, stock, cover_photo, genre_id, author_id)
+  ├── genres (id, name, description)
+  ├── authors (id, name, bio, photo)
+  ├── transactions (id, order_number, customer_id, book_id, total_amount)
+  └── contacts (id, name, email, subject, message, is_read, timestamps)
+```
 
 ---
 
 ## 📋 Prasyarat Sistem
 
-Sebelum menjalankan proyek ini, pastikan sistem Anda telah terinstal software berikut:
-* **PHP**: `>= 8.2` (dengan ekstensi `zip`, `pdo`, `mbstring`, `fileinfo` aktif di `php.ini`)
+* **PHP**: `>= 8.2` (dengan ekstensi `pdo_mysql`, `mbstring`, `fileinfo`, `curl` aktif)
+* **Node.js**: `>= 18.x` & **npm**
 * **Composer**: `>= 2.x`
-* **Git**: versi terbaru
-* **Database**: MySQL / MariaDB (XAMPP / Laragon)
+* **Web & Database Server**: XAMPP / Laragon (Apache & MySQL / MariaDB)
 
 ---
 
-## 🚀 Langkah Instalasi & Menjalankan Proyek
+## 🚀 Panduan Instalasi & Menjalankan Aplikasi
 
-### 1. Clone Repositori & Masuk Direktori
+### 1. Clone Repositori
 ```bash
 git clone https://github.com/abell56/tugas-laravel.git
-cd booksales-api
+cd tugas-laravel
 ```
 
-### 2. Instalasi Dependensi PHP
+### 2. Instalasi Dependensi Backend (PHP / Composer)
 ```bash
 composer install
 ```
 
-### 3. Konfigurasi Lingkungan (.env)
-Salin file `.env.example` menjadi `.env` (jika belum ada) dan sesuaikan konfigurasi database:
+### 3. Instalasi Dependensi Frontend (Node.js / npm)
+```bash
+npm install
+```
+
+### 4. Konfigurasi Lingkungan (`.env`)
+Salin file `.env.example` menjadi `.env` dan sesuaikan koneksi database MySQL Anda:
 ```env
+APP_NAME=Bookstore
+APP_ENV=local
+APP_KEY=
+APP_DEBUG=true
+APP_URL=http://127.0.0.1:8000
+
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
@@ -37,9 +104,10 @@ DB_DATABASE=db_penjualan_buku
 DB_USERNAME=root
 DB_PASSWORD=
 
-SESSION_DRIVER=file
-QUEUE_CONNECTION=sync
-CACHE_STORE=file
+# Kredensial Midtrans Sandbox (Opsional - Fallback Simulator Otomatis Tersedia)
+MIDTRANS_SERVER_KEY=SB-Mid-server-test
+MIDTRANS_CLIENT_KEY=SB-Mid-client-test
+MIDTRANS_IS_PRODUCTION=false
 ```
 
 Generate application key:
@@ -47,120 +115,105 @@ Generate application key:
 php artisan key:generate
 ```
 
-### 4. Menjalankan Server Lokal
-Jalankan development server Laravel:
+### 5. Migrasi & Seeder Database
+Jalankan migrasi tabel database dan masukkan data seeder:
+```bash
+php artisan migrate --seed
+```
+
+> **Akun Default untuk Uji Coba**:
+> * **Akun Admin**:
+>   * Email: `admin@bookstore.id`
+>   * Password: `admin123`
+>   * Role: `admin` (Akses penuh ke `/admin`)
+> * **Akun Customer**:
+>   * Email: `budi.santoso@gmail.com`
+>   * Password: `user123`
+>   * Role: `customer`
+
+### 6. Build Aset Frontend
+Lakukan build aset React dengan Vite:
+```bash
+npm run build
+```
+*(Atau jalankan `npm run dev` untuk mode hot-reload pengembangan)*
+
+### 7. Jalankan Server Laravel
 ```bash
 php artisan serve
 ```
-Akses aplikasi melalui browser di: `http://127.0.0.1:8000`
+Akses aplikasi melalui browser di: **`http://127.0.0.1:8000`**
 
 ---
 
-## 📁 Implementasi Arsitektur RESTful API & Relasi Model
+## 🌐 Daftar Endpoint RESTful API
 
-Proyek ini mengimplementasikan arsitektur **RESTful API** berbasis JSON untuk entitas **Book**, **Author**, dan **Genre** dengan relasi antar Model:
-
-```
-[ Client / Postman ]
-        │
-        ├─► [ routes/api.php ]
-        │         │
-        │         ├─► [ Middleware: admin ] (Read All & Destroy)
-        │         └─► [ Middleware: customer ] (Create, Update, & Show)
-        │
-        ▼
-[ Controllers ] ──(Eager Loading: with)──► [ Models (Database / Eloquent) ]
- (BookController, AuthorController,         (Book.php, Author.php, Genre.php)
-  GenreController)                                  │
-                                             (foreignId relation)
-                                                    │
-        ◄─────────────────(Return JSON Response)────┘
-[ JSON Output (HTTP 200 / 201 / 401 / 403 / 404) ]
-```
-
-### 1. Mengambil Data dari Relasi Model (Eager Loading)
-Data relasi antar model diambil secara optimal menggunakan fitur Eager Loading (`with()`):
-* **`Book`**: Memuat relasi ke model `Author` (`belongsTo`) dan `Genre` (`belongsTo`):
-  * `Book::with(['author', 'genre'])->get()` (Read All)
-  * `Book::with(['author', 'genre'])->find($id)` (Show Detail)
-* **`Author`**: Memuat relasi ke model `Book` (`hasMany`):
-  * `Author::with('books')->get()` (Read All)
-  * `Author::with('books')->find($id)` (Show Detail)
-* **`Genre`**: Memuat relasi ke model `Book` (`hasMany`):
-  * `Genre::with('books')->get()` (Read All)
-  * `Genre::with('books')->find($id)` (Show Detail)
-
-### 2. Mengatur Relasi di Migration dengan `foreignId`
-Relasi antar tabel diatur menggunakan `foreignId()` pada migration tabel `books` (`database/migrations/2026_10_26_000003_create_books_table.php`):
-```php
-// Mengatur relasi ke tabel genres menggunakan foreignId
-$table->foreignId('genre_id')->constrained('genres')->onDelete('cascade');
-
-// Mengatur relasi ke tabel authors menggunakan foreignId
-$table->foreignId('author_id')->constrained('authors')->onDelete('cascade');
-```
-
-### 3. Pengaturan Hak Akses Routing (`routes/api.php`)
-Routing endpoint dikelompokkan berdasarkan hak akses menggunakan middleware:
-* **Admin Only (`admin`)**:
-  * **Read All (`index`)**: Menampilkan seluruh data entitas.
-  * **Destroy (`destroy`)**: Menghapus data entitas berdasarkan ID.
-* **Customer Authenticated Only (`customer`)**:
-  * **Create (`store`)**: Menambahkan data baru.
-  * **Update (`update`)**: Memperbarui data yang ada.
-  * **Show (`show`)**: Menampilkan detail data entitas beserta relasinya.
+| Endpoint | Method | Format | Deskripsi & Hak Akses |
+| :--- | :---: | :---: | :--- |
+| **Autentikasi** | | | |
+| `/api/register` | `POST` | `JSON` | Registrasi user baru (default role: `customer`) |
+| `/api/login` | `POST` | `JSON` | Login user & verifikasi password bcrypt |
+| `/api/logout` | `POST` | `JSON` | Logout & penghapusan session |
+| `/api/me` | `GET` | `JSON` | Cek status autentikasi user saat ini |
+| **Katalog & Master Data** | | | |
+| `/api/books` | `GET` | `JSON` | Mengambil seluruh katalog buku (beserta relasi genre & author) |
+| `/api/books/{id}` | `GET` | `JSON` | Detail spesifik buku |
+| `/api/books` | `POST` | `JSON` | Tambah buku baru (Admin) |
+| `/api/books/{id}` | `PUT/PATCH` | `JSON` | Perbarui data buku (Admin) |
+| `/api/books/{id}` | `DELETE` | `JSON` | Hapus buku dari database (Admin) |
+| `/api/genres` | `GET` | `JSON` | Daftar seluruh kategori / genre |
+| `/api/genres` | `POST` / `PUT` / `DELETE` | `JSON` | CRUD Kategori (Admin) |
+| `/api/authors` | `GET` | `JSON` | Daftar seluruh penulis / author |
+| `/api/authors` | `POST` / `PUT` / `DELETE` | `JSON` | CRUD Penulis (Admin) |
+| **Transaksi & Pembayaran** | | | |
+| `/api/transactions` | `GET` | `JSON` | Riwayat transaksi (bisa difilter `customer_id` atau semua untuk admin) |
+| `/api/transactions` | `POST` | `JSON` | Checkout pesanan buku & otomatis kurangi stok buku |
+| `/api/transactions/{id}` | `DELETE` | `JSON` | Hapus riwayat pesanan (Admin) |
+| `/api/payment/snap-token` | `POST` | `JSON` | Generate token transaksi Midtrans Snap |
+| **Pengguna & Role** | | | |
+| `/api/users` | `GET` | `JSON` | Daftar seluruh user terdaftar (Admin) |
+| `/api/users/{id}/role` | `PUT` | `JSON` | Ubah role pengguna (`admin` <-> `customer`) |
+| `/api/users/{id}` | `DELETE` | `JSON` | Hapus akun pengguna (Admin) |
+| **Kontak & Pesan Masuk** | | | |
+| `/api/contacts` | `POST` | `JSON` | Kirim pesan dari formulir kontak pelanggan |
+| `/api/contacts` | `GET` | `JSON` | Daftar seluruh pesan masuk pelanggan (Admin Inbox) |
+| `/api/contacts/{id}` | `DELETE` | `JSON` | Hapus pesan kontak dari sistem (Admin) |
 
 ---
 
-## 🌐 Daftar Endpoint API
+## 📁 Struktur Direktori Penting
 
-| Endpoint | Method | Middleware | Controller & Method | Format Output | Deskripsi & Hak Akses |
-| :--- | :---: | :---: | :--- | :---: | :--- |
-| `/api/books` | `GET` | `admin` | `BookController@index` | `JSON` | Read All Buku beserta relasi Penulis & Genre (Admin) |
-| `/api/books` | `POST` | `customer` | `BookController@store` | `JSON` | Create Buku baru (Customer Terautentikasi) |
-| `/api/books/{id}` | `GET` | `customer` | `BookController@show` | `JSON` | Show Detail Buku beserta relasi (Customer Terautentikasi) |
-| `/api/books/{id}` | `PUT/PATCH` | `customer` | `BookController@update` | `JSON` | Update Buku berdasarkan ID (Customer Terautentikasi) |
-| `/api/books/{id}` | `DELETE` | `admin` | `BookController@destroy` | `JSON` | Destroy Buku berdasarkan ID (Admin) |
-| `/api/authors` | `GET` | `admin` | `AuthorController@index` | `JSON` | Read All Penulis beserta daftar bukunya (Admin) |
-| `/api/authors` | `POST` | `customer` | `AuthorController@store` | `JSON` | Create Penulis baru (Customer Terautentikasi) |
-| `/api/authors/{id}` | `GET` | `customer` | `AuthorController@show` | `JSON` | Show Detail Penulis beserta daftar bukunya (Customer Terautentikasi) |
-| `/api/authors/{id}` | `PUT/PATCH` | `customer` | `AuthorController@update` | `JSON` | Update Penulis berdasarkan ID (Customer Terautentikasi) |
-| `/api/authors/{id}` | `DELETE` | `admin` | `AuthorController@destroy` | `JSON` | Destroy Penulis berdasarkan ID (Admin) |
-| `/api/genres` | `GET` | `admin` | `GenreController@index` | `JSON` | Read All Genre/Kategori beserta daftar bukunya (Admin) |
-| `/api/genres` | `POST` | `customer` | `GenreController@store` | `JSON` | Create Genre baru (Customer Terautentikasi) |
-| `/api/genres/{id}` | `GET` | `customer` | `GenreController@show` | `JSON` | Show Detail Genre beserta daftar bukunya (Customer Terautentikasi) |
-| `/api/genres/{id}` | `PUT/PATCH` | `customer` | `GenreController@update` | `JSON` | Update Genre berdasarkan ID (Customer Terautentikasi) |
-| `/api/genres/{id}` | `DELETE` | `admin` | `GenreController@destroy` | `JSON` | Destroy Genre berdasarkan ID (Admin) |
-
----
-
-## 🗄️ Database Migration & Seeder
-
-Struktur tabel dan data awal (dummy) telah disediakan melalui fitur Laravel Migration dan Seeder:
-
-### 1. File Migration (`database/migrations/`)
-* `0001_01_01_000000_create_users_table.php`: Tabel `users` dengan kolom `role` (`admin` / `customer`).
-* `2026_10_26_000001_create_genres_table.php`: Tabel `genres`.
-* `2026_10_26_000002_create_authors_table.php`: Tabel `authors`.
-* `2026_10_26_000003_create_books_table.php`: Tabel `books` dengan foreignId relasi `genre_id` dan `author_id`.
-
-### 2. File Seeder (`database/seeders/`)
-* `UserSeeder.php`: Akun `admin@booksales.test` dan `customer@booksales.test`.
-* `GenreSeeder.php`: 5 kategori buku dummy.
-* `AuthorSeeder.php`: 5 penulis dummy.
-* `BookSeeder.php`: 5 buku dummy dengan relasi genre dan author.
-* `DatabaseSeeder.php`: Menjalankan seluruh seeder secara terurut.
-
-### 3. Perintah Eksekusi Migration & Seeding
-```bash
-php artisan migrate:fresh --seed
+```
+├── app/
+│   ├── Http/Controllers/
+│   │   ├── AuthController.php         # Handler autentikasi (Login, Register, Me)
+│   │   ├── BookController.php         # Handler CRUD & relasi buku
+│   │   ├── GenreController.php        # Handler kategori
+│   │   ├── AuthorController.php       # Handler penulis
+│   │   ├── TransactionController.php   # Handler order & stok
+│   │   ├── PaymentController.php      # Handler Midtrans Snap Token
+│   │   ├── UserController.php         # Handler monitoring user & edit role
+│   │   └── ContactController.php      # Handler inbox pesan kontak
+│   └── Models/                        # Eloquent Models (User, Book, Genre, Author, Transaction, Contact)
+├── database/
+│   ├── migrations/                    # File migrasi skema database
+│   └── seeders/                       # Seeder data awal (User, Book, Genre, Author)
+├── resources/
+│   ├── views/
+│   │   └── app.blade.php              # Blade view utama penyedia root DOM React
+│   └── js/
+│       ├── main.jsx                   # Entry point React
+│       ├── App.jsx                    # Routing & Protected Routes
+│       ├── components/                # Navbar, Footer, AdminBooks, AdminUsers, AdminOrders, AdminContacts
+│       ├── context/                   # AuthContext & CartContext
+│       └── pages/                     # Home, About, Book, Cart, Profile, Contact, Team, Admin, Login, Register
+├── routes/
+│   ├── web.php                        # SPA fallback router ke Blade app
+│   └── api.php                        # Definisi RESTful API endpoints
+└── vite.config.js                     # Konfigurasi Laravel Vite Plugin & React Plugin
 ```
 
 ---
 
-## 📄 Struktur Direktori Utama
-* `app/Http/Controllers/` - Kontroler API (`BookController.php`, `AuthorController.php`, `GenreController.php`).
-* `app/Http/Middleware/` - Middleware proteksi (`AdminMiddleware.php`, `CustomerMiddleware.php`).
-* `app/Models/` - Model Eloquent (`Book.php`, `Author.php`, `Genre.php`, `User.php`).
-* `database/migrations/` - Migration skema database dengan relasi `foreignId`.
-* `routes/api.php` - Definisi endpoint RESTful API aplikasi sesuai hak akses Admin & Customer.
+## 🔒 Lisensi & Hak Cipta
+Dikembangkan untuk pemenuhan tugas akhir program pembelajaran fullstack development. Bebas digunakan dan dikembangkan untuk tujuan edukasi.

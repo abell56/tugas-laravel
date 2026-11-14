@@ -1,0 +1,249 @@
+/* ==========================================================================
+   Bookstore Application Custom Styles
+   ========================================================================== */
+
+/* Navbar & Navigation Styling (Enhanced) */
+.custom-navbar {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  transition: all 0.3s ease;
+  z-index: 1030;
+}
+
+.brand-logo {
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.brand-logo:hover {
+  transform: scale(1.03);
+}
+
+.brand-icon-wrapper {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(13, 110, 253, 0.1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.brand-logo:hover .brand-icon-wrapper {
+  background: rgba(13, 110, 253, 0.18);
+  transform: rotate(-6deg);
+}
+
+.brand-text {
+  letter-spacing: -0.5px;
+  color: #1e293b;
+}
+
+/* NavLink Custom Pills & Active State */
+.custom-nav-link {
+  color: #475569 !important;
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 0.45rem 1rem !important;
+  border-radius: 50rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  position: relative;
+}
+
+.custom-nav-link i {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  transition: transform 0.2s ease;
+}
+
+.custom-nav-link:hover {
+  color: #0d6efd !important;
+  background-color: rgba(13, 110, 253, 0.08);
+  transform: translateY(-1px);
+}
+
+.custom-nav-link:hover i {
+  transform: scale(1.15);
+  opacity: 1;
+}
+
+/* NavLink Active State - Enhanced Pill Style */
+.custom-nav-link.active {
+  background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%) !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.28);
+  transform: translateY(-1px);
+}
+
+.custom-nav-link.active i {
+  color: #ffffff !important;
+  opacity: 1;
+}
+
+/* Auth Buttons */
+.auth-btn {
+  transition: all 0.2s ease;
+}
+
+.auth-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* Footer Links */
+.footer-link {
+  transition: color 0.2s ease;
+  font-weight: 500;
+}
+
+.footer-link:hover {
+  color: #0d6efd !important;
+}
+
+/* ==========================================================================
+   Book Cards & Catalog
+   ========================================================================== */
+.book-cover-img {
+  height: 250px;
+  width: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.book-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.book-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.book-card:hover .book-cover-img {
+  transform: scale(1.04);
+}
+
+/* ==========================================================================
+   Team Cards & Social Buttons
+   ========================================================================== */
+.team-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  border-radius: 14px;
+}
+
+.team-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1) !important;
+}
+
+.team-avatar {
+  width: 130px;
+  height: 130px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid #eff6ff;
+  margin: 0 auto;
+}
+
+.social-icon-btn {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #f1f5f9;
+  color: #475569;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.social-icon-btn:hover {
+  background-color: #0d6efd;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   Hero Section
+   ========================================================================== */
+.hero-book-img {
+  max-height: 420px;
+  width: 100%;
+  object-fit: cover;
+}
+
+/* ==========================================================================
+   Registration Page & Form Styling
+   ========================================================================== */
+.register-page-wrapper {
+  min-height: calc(100vh - 160px);
+  background-color: #f8fafc;
+}
+
+.custom-input-group .input-group-text {
+  background-color: #f8fafc;
+  border-color: #e2e8f0;
+  color: #64748b;
+  font-size: 0.95rem;
+  padding: 0.65rem 0.9rem;
+  border-top-left-radius: 0.5rem;
+  border-bottom-left-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.custom-input-group .form-control {
+  border-color: #e2e8f0;
+  padding: 0.65rem 0.95rem;
+  font-size: 0.95rem;
+  color: #1e293b;
+  transition: all 0.2s ease;
+}
+
+.custom-input-group .form-control:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.custom-input-group .btn-light {
+  background-color: #f8fafc;
+  border-color: #e2e8f0;
+  color: #64748b;
+  border-top-right-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.custom-input-group .btn-light:hover {
+  background-color: #f1f5f9;
+  color: #1e293b;
+}
+
+/* Feedback Animations */
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeInSlide 0.25s ease-out forwards;
+}
+
+/* Card Rounded Corners */
+.rounded-4 {
+  border-radius: 1rem !important;
+}

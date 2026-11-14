@@ -13,7 +13,7 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Data akun Admin
+        // 1. Akun Admin BookSales
         User::updateOrCreate(
             ['email' => 'admin@booksales.test'],
             [
@@ -23,12 +23,32 @@ class UserSeeder extends Seeder
             ]
         );
 
-        // Data akun Customer
+        // 2. Akun Customer BookSales
         User::updateOrCreate(
             ['email' => 'customer@booksales.test'],
             [
                 'name' => 'Customer John Doe',
                 'password' => Hash::make('customer123'),
+                'role' => 'customer',
+            ]
+        );
+
+        // 3. Akun Admin Demo Bookstore
+        User::updateOrCreate(
+            ['email' => 'admin@bookstore.id'],
+            [
+                'name' => 'Administrator Bookstore',
+                'password' => Hash::make('admin123'),
+                'role' => 'admin',
+            ]
+        );
+
+        // 4. Akun User Demo Bookstore
+        User::updateOrCreate(
+            ['email' => 'budi.santoso@gmail.com'],
+            [
+                'name' => 'Budi Santoso',
+                'password' => Hash::make('user123'),
                 'role' => 'customer',
             ]
         );

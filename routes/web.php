@@ -2,13 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return response()->json([
-        'message' => 'Selamat datang di Book Sales API',
-        'endpoints' => [
-            'books' => url('/api/books'),
-            'authors' => url('/api/authors'),
-            'genres' => url('/api/genres'),
-        ]
-    ]);
-});
+/*
+|--------------------------------------------------------------------------
+| Web Routes (Single Page Application - React)
+|--------------------------------------------------------------------------
+| Seluruh URL selain /api/* akan diarahkan ke view 'app'
+| yang me-mount aplikasi React.js.
+*/
+Route::get('/{any?}', function () {
+    return view('app');
+})->where('any', '^(?!api).*$');

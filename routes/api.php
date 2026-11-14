@@ -4,46 +4,95 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GenreController;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ContactController;
 
 /*
 |--------------------------------------------------------------------------
-| Admin Protected Routes (Read All & Destroy)
+| Public Authentication Routes (Register & Login)
 |--------------------------------------------------------------------------
-| Endpoint Read All (index) dan Destroy (destroy) hanya dapat diakses
-| oleh user dengan hak akses admin (diproteksi middleware 'admin').
-|
-| - GET    /api/books        (Read All Books)
-| - DELETE /api/books/{id}   (Destroy Book)
-| - GET    /api/authors      (Read All Authors)
-| - DELETE /api/authors/{id} (Destroy Author)
-| - GET    /api/genres       (Read All Genres)
-| - DELETE /api/genres/{id}  (Destroy Genre)
 */
-Route::middleware(['admin'])->group(function () {
-    Route::apiResource('books', BookController::class)->only(['index', 'destroy']);
-    Route::apiResource('authors', AuthorController::class)->only(['index', 'destroy']);
-    Route::apiResource('genres', GenreController::class)->only(['index', 'destroy']);
-});
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout']);
+Route::get('/me', [AuthController::class, 'me']);
 
 /*
 |--------------------------------------------------------------------------
-| Customer Authenticated Routes (Create, Update, & Show)
+| Public Catalog Routes (Katalog Buku, Genre, Author)
 |--------------------------------------------------------------------------
-| Endpoint Create (store), Update (update), dan Show (show) hanya dapat
-| diakses oleh customer yang sudah melakukan autentikasi (diproteksi middleware 'customer').
-|
-| - POST      /api/books        (Create Book)
-| - GET       /api/books/{id}   (Show Book Detail beserta relasi)
-| - PUT/PATCH /api/books/{id}   (Update Book)
-| - POST      /api/authors      (Create Author)
-| - GET       /api/authors/{id} (Show Author Detail beserta relasi)
-| - PUT/PATCH /api/authors/{id} (Update Author)
-| - POST      /api/genres       (Create Genre)
-| - GET       /api/genres/{id}  (Show Genre Detail beserta relasi)
-| - PUT/PATCH /api/genres/{id}  (Update Genre)
+| Dapat diakses oleh umum (Guest) maupun Customer untuk melihat dan mencari
+| katalog buku, detail buku, serta daftar kategori.
 */
-Route::middleware(['customer'])->group(function () {
-    Route::apiResource('books', BookController::class)->only(['store', 'update', 'show']);
-    Route::apiResource('authors', AuthorController::class)->only(['store', 'update', 'show']);
-    Route::apiResource('genres', GenreController::class)->only(['store', 'update', 'show']);
-});
+Route::get('/books', [BookController::class, 'index']);
+Route::get('/books/{id}', [BookController::class, 'show']);
+Route::get('/genres', [GenreController::class, 'index']);
+Route::get('/genres/{id}', [GenreController::class, 'show']);
+Route::get('/authors', [AuthorController::class, 'index']);
+Route::get('/authors/{id}', [AuthorController::class, 'show']);
+
+/*
+|--------------------------------------------------------------------------
+| Management Routes (CRUD Buku, Kategori, & Penulis)
+|--------------------------------------------------------------------------
+| Digunakan oleh Admin untuk memonitor dan mengontrol data buku:
+| - Tambah (store)
+| - Ubah / Edit (update)
+| - Hapus (destroy)
+*/
+Route::post('/books', [BookController::class, 'store']);
+Route::put('/books/{id}', [BookController::class, 'update']);
+Route::patch('/books/{id}', [BookController::class, 'update']);
+Route::delete('/books/{id}', [BookController::class, 'destroy']);
+
+Route::post('/genres', [GenreController::class, 'store']);
+Route::put('/genres/{id}', [GenreController::class, 'update']);
+Route::patch('/genres/{id}', [GenreController::class, 'update']);
+Route::delete('/genres/{id}', [GenreController::class, 'destroy']);
+
+Route::post('/authors', [AuthorController::class, 'store']);
+Route::put('/authors/{id}', [AuthorController::class, 'update']);
+Route::patch('/authors/{id}', [AuthorController::class, 'update']);
+Route::delete('/authors/{id}', [AuthorController::class, 'destroy']);
+
+/*
+|--------------------------------------------------------------------------
+| Transaction / Orders Routes (Keranjang & Pemesanan)
+|--------------------------------------------------------------------------
+| - GET /api/transactions        (Daftar transaksi / pesanan)
+| - POST /api/transactions       (Checkout pesanan dari keranjang)
+| - GET /api/transactions/{id}   (Detail transaksi)
+| - DELETE /api/transactions/{id}(Hapus transaksi)
+*/
+Route::get('/transactions', [TransactionController::class, 'index']);
+Route::post('/transactions', [TransactionController::class, 'store']);
+Route::get('/transactions/{id}', [TransactionController::class, 'show']);
+Route::delete('/transactions/{id}', [TransactionController::class, 'destroy']);
+
+/*
+|--------------------------------------------------------------------------
+| Payment Routes (Midtrans Snap)
+|--------------------------------------------------------------------------
+*/
+Route::post('/payment/snap-token', [PaymentController::class, 'createSnapToken']);
+
+/*
+|--------------------------------------------------------------------------
+| User Management Routes (Admin Monitoring)
+|--------------------------------------------------------------------------
+*/
+Route::get('/users', [UserController::class, 'index']);
+Route::put('/users/{id}/role', [UserController::class, 'updateRole']);
+Route::delete('/users/{id}', [UserController::class, 'destroy']);
+
+/*
+|--------------------------------------------------------------------------
+| Contact Routes (Contact to Admin)
+|--------------------------------------------------------------------------
+*/
+Route::post('/contacts', [ContactController::class, 'store']);
+Route::get('/contacts', [ContactController::class, 'index']);
+Route::delete('/contacts/{id}', [ContactController::class, 'destroy']);
