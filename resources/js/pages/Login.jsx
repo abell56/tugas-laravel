@@ -79,57 +79,70 @@ function Login() {
           : '/profile'
       navigate(targetDestination, { replace: true })
     } catch (err) {
-      setAuthError(err.message || 'Gagal masuk. Periksa kembali username dan kata sandi Anda.')
+      const serverMessage = err.message || 'Kombinasi kredensial tidak sesuai.'
+      setAuthError(serverMessage)
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="login-page-wrapper py-5 bg-body-tertiary">
+    <div className="py-5" style={{ minHeight: 'calc(100vh - 140px)' }}>
       <div className="container">
-        {/* Breadcrumb */}
-        <nav aria-label="breadcrumb" className="mb-4">
-          <ol className="breadcrumb">
-            <li className="breadcrumb-item">
-              <Link to="/" className="text-decoration-none">
-                <i className="fa-solid fa-house me-1"></i>
-                Home
-              </Link>
-            </li>
-            <li className="breadcrumb-item active" aria-current="page">
-              Login Pengguna
-            </li>
-          </ol>
-        </nav>
-
-        {/* Pesan Redirect dari Protected Route (jika ada) */}
-        {redirectMessage && (
-          <div className="alert alert-warning alert-dismissible fade show border-warning-subtle shadow-sm mb-4" role="alert">
-            <i className="fa-solid fa-triangle-exclamation me-2 text-warning"></i>
-            {redirectMessage}
-          </div>
-        )}
-
         <div className="row justify-content-center">
           <div className="col-12 col-lg-10 col-xl-9">
-            <div className="card border-0 shadow-sm rounded-4 overflow-hidden">
-              <div className="row g-0 align-items-stretch">
-                {/* Kolom Kiri: Formulir Login */}
+            {redirectMessage && (
+              <div
+                className="alert alert-warning alert-dismissible fade show shadow-sm mb-4 d-flex align-items-center"
+                role="alert"
+                style={{
+                  backgroundColor: '#FAF4E5',
+                  borderColor: 'rgba(184, 134, 11, 0.3)',
+                  color: '#8C6D1F',
+                  borderRadius: '10px',
+                }}
+              >
+                <i className="fa-solid fa-circle-exclamation me-2 fs-5"></i>
+                <div className="small fw-semibold">{redirectMessage}</div>
+                <button type="button" className="btn-close ms-auto" data-bs-dismiss="alert"></button>
+              </div>
+            )}
+
+            <div className="card overflow-hidden shadow-sm" style={{ backgroundColor: 'var(--bg-surface)' }}>
+              <div className="row g-0">
+                {/* Kolom Kiri: Form Login */}
                 <div className="col-12 col-md-7 p-4 p-md-5">
                   <div className="mb-4">
-                    <span className="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill mb-2 fw-semibold">
-                      <i className="fa-solid fa-right-to-bracket me-1"></i>
-                      Autentikasi Akun
+                    <span
+                      className="badge rounded-pill px-3 py-1 mb-2"
+                      style={{
+                        backgroundColor: 'var(--accent-light)',
+                        color: 'var(--accent-primary)',
+                        border: '1px solid rgba(200, 90, 50, 0.25)',
+                        fontSize: '0.75rem',
+                        letterSpacing: '0.04em',
+                      }}
+                    >
+                      <i className="fa-solid fa-arrow-right-to-bracket me-1"></i> Masuk Akun
                     </span>
-                    <h2 className="h3 fw-bold text-dark mb-1">Masuk ke Bookstore</h2>
-                    <p className="text-secondary small mb-0">
-                      Silakan masukkan username/email dan kata sandi Anda untuk melanjutkan.
+                    <h2 className="editorial-heading fw-bold mb-1" style={{ fontSize: '1.75rem' }}>
+                      Selamat Datang Kembali
+                    </h2>
+                    <p className="small mb-0" style={{ color: 'var(--text-secondary)' }}>
+                      Masukkan nama pengguna atau email serta kata sandi Anda.
                     </p>
                   </div>
 
                   {authError && (
-                    <div className="alert alert-danger d-flex align-items-center gap-2 py-2 px-3 small rounded-3 mb-4 animate-fadeIn" role="alert">
+                    <div
+                      className="alert alert-danger d-flex align-items-center gap-2 py-2 px-3 small rounded-3 mb-4 animate-fadeIn"
+                      role="alert"
+                      style={{
+                        backgroundColor: '#FDF0EE',
+                        borderColor: 'rgba(185, 56, 34, 0.3)',
+                        color: '#B93822',
+                      }}
+                    >
                       <i className="fa-solid fa-circle-exclamation flex-shrink-0"></i>
                       <div>{authError}</div>
                     </div>
@@ -139,8 +152,8 @@ function Login() {
                     <FormInput
                       id="identifier"
                       name="identifier"
-                      label="Username atau Email"
-                      placeholder="Masukkan username atau email"
+                      label="Username atau Alamat Email"
+                      placeholder="Masukkan nama pengguna atau email"
                       icon="fa-user"
                       value={formData.identifier}
                       onChange={handleChange}
@@ -153,7 +166,7 @@ function Login() {
                     <FormInput
                       id="password"
                       name="password"
-                      label="Kata Sandi"
+                      label="Kata Sandi Akun"
                       type="password"
                       placeholder="Masukkan kata sandi Anda"
                       icon="fa-lock"
@@ -168,16 +181,16 @@ function Login() {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="btn btn-primary w-100 py-2 rounded-pill fw-semibold shadow-sm mb-3 auth-btn"
+                      className="btn btn-primary w-100 py-2 rounded-pill fw-semibold shadow-sm mb-3 mt-2"
                     >
                       {isLoading ? (
                         <>
                           <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                          Sedang Memproses...
+                          Sedang Memverifikasi...
                         </>
                       ) : (
                         <>
-                          <i className="fa-solid fa-right-to-bracket me-2"></i>
+                          <i className="fa-solid fa-arrow-right-to-bracket me-2"></i>
                           Masuk Sekarang
                         </>
                       )}
@@ -185,54 +198,80 @@ function Login() {
                   </form>
 
                   <div className="text-center pt-2">
-                    <p className="text-secondary small mb-0">
-                      Belum memiliki akun?{' '}
-                      <Link to="/register" className="text-primary fw-semibold text-decoration-none">
-                        Daftar di Sini
+                    <p className="small mb-0" style={{ color: 'var(--text-secondary)' }}>
+                      Belum menjadi anggota pembaca?{' '}
+                      <Link to="/register" className="fw-semibold" style={{ color: 'var(--accent-primary)' }}>
+                        Daftar Akun Baru
                       </Link>
                     </p>
                   </div>
                 </div>
 
-                {/* Kolom Kanan: Informasi & Keuntungan */}
-                <div className="col-12 col-md-5 d-none d-md-flex flex-column justify-content-between p-4 p-md-5 text-white bg-primary bg-gradient position-relative overflow-hidden">
-                  <div className="position-relative" style={{ zIndex: 2 }}>
-                    <div className="d-inline-flex align-items-center gap-2 bg-white bg-opacity-25 px-3 py-1 rounded-pill small mb-4">
-                      <i className="fa-solid fa-shield-halved text-warning"></i>
-                      <span>Akses Akun Aman</span>
+                {/* Kolom Kanan: Informasi Editorial & Suasana Toko */}
+                <div
+                  className="col-12 col-md-5 d-none d-md-flex flex-column justify-content-between p-4 p-md-5"
+                  style={{
+                    backgroundColor: 'var(--bg-secondary)',
+                    borderLeft: '1px solid var(--border-subtle)',
+                  }}
+                >
+                  <div>
+                    <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill small mb-4" style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
+                      <i className="fa-solid fa-feather" style={{ color: 'var(--accent-primary)' }}></i>
+                      <span className="small fw-semibold" style={{ color: 'var(--text-primary)' }}>Ekosistem Literasi</span>
                     </div>
 
-                    <h4 className="fw-bold mb-3">Selamat Datang Kembali</h4>
-                    <p className="opacity-75 small mb-4">
-                      Masuk untuk mengelola katalog, menjelajahi ribuan buku terlaris, dan mengakses fitur sesuai peran akun Anda.
+                    <h4 className="editorial-heading fw-bold mb-3" style={{ fontSize: '1.4rem' }}>
+                      Ruang Baca Pribadi Anda
+                    </h4>
+                    <p className="small mb-4" style={{ color: 'var(--text-secondary)', lineHeight: '1.7' }}>
+                      Masuk untuk meninjau status pesanan faktur, menyimpan koleksi buku impian, dan berbelanja naskah bermutu.
                     </p>
 
                     <div className="d-flex flex-column gap-3 mb-4">
                       <div className="d-flex align-items-center gap-3">
-                        <div className="rounded-circle bg-white text-primary p-2 d-flex align-items-center justify-content-center shadow-sm" style={{ width: '38px', height: '38px' }}>
-                          <i className="fa-solid fa-user-shield"></i>
+                        <div
+                          className="rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0"
+                          style={{
+                            width: '38px',
+                            height: '38px',
+                            backgroundColor: 'var(--bg-surface)',
+                            color: 'var(--accent-primary)',
+                            border: '1px solid var(--border-subtle)',
+                          }}
+                        >
+                          <i className="fa-solid fa-shield-halved"></i>
                         </div>
                         <div>
-                          <h6 className="fw-bold mb-0 small">Peran Administrator</h6>
-                          <small className="opacity-75">Akses penuh ke dashboard manajemen data</small>
+                          <h6 className="fw-bold mb-0 small" style={{ color: 'var(--text-primary)' }}>Peran Administrator</h6>
+                          <small className="text-muted">Akses kurasi katalog, pesanan, dan anggota</small>
                         </div>
                       </div>
 
                       <div className="d-flex align-items-center gap-3">
-                        <div className="rounded-circle bg-white text-primary p-2 d-flex align-items-center justify-content-center shadow-sm" style={{ width: '38px', height: '38px' }}>
-                          <i className="fa-solid fa-user"></i>
+                        <div
+                          className="rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0"
+                          style={{
+                            width: '38px',
+                            height: '38px',
+                            backgroundColor: 'var(--bg-surface)',
+                            color: 'var(--accent-secondary)',
+                            border: '1px solid var(--border-subtle)',
+                          }}
+                        >
+                          <i className="fa-solid fa-book-open"></i>
                         </div>
                         <div>
-                          <h6 className="fw-bold mb-0 small">Peran Pengguna Biasa</h6>
-                          <small className="opacity-75">Akses katalog buku dan profil akun</small>
+                          <h6 className="fw-bold mb-0 small" style={{ color: 'var(--text-primary)' }}>Peran Pembaca (Customer)</h6>
+                          <small className="text-muted">Katalog interaktif & riwayat belanja lunas</small>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="position-relative border-top border-white border-opacity-25 pt-3 small opacity-75" style={{ zIndex: 2 }}>
+                  <div className="pt-3 border-top small" style={{ borderColor: 'var(--border-subtle) !important', color: 'var(--text-muted)' }}>
                     <i className="fa-solid fa-info-circle me-1"></i>
-                    Gunakan kredensial yang telah didaftarkan untuk masuk.
+                    Gunakan kredensial yang tersinkronisasi dengan database MySQL.
                   </div>
                 </div>
               </div>

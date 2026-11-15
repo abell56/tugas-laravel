@@ -574,111 +574,145 @@ function Admin({ defaultTab = 'book' }) {
   return (
     <div className="container my-5">
       {/* Header Halaman Admin */}
-      <div className="text-center mb-4">
+      <div className="text-center mb-5">
         <div className="d-inline-flex align-items-center gap-2 mb-2">
-          <span className="badge bg-danger text-white px-3 py-1 rounded-pill fw-semibold shadow-sm">
-            <i className="fa-solid fa-shield-halved me-1"></i> Area Terproteksi Khusus Administrator
+          <span
+            className="badge rounded-pill px-3 py-1"
+            style={{
+              backgroundColor: 'var(--accent-light)',
+              color: 'var(--accent-primary)',
+              border: '1px solid rgba(200, 90, 50, 0.25)',
+              fontSize: '0.78rem',
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+            }}
+          >
+            <i className="fa-solid fa-feather-pointed me-1"></i> Back-Office Kurator Penerbitan
           </span>
           {user && (
-            <span className="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 rounded-pill small">
-              <i className="fa-solid fa-user-check me-1"></i>
-              {user.fullName}
+            <span
+              className="badge rounded-pill px-3 py-1 small"
+              style={{
+                backgroundColor: 'var(--bg-secondary)',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border-subtle)',
+              }}
+            >
+              <i className="fa-solid fa-user-shield me-1"></i>
+              {user.fullName || user.name}
             </span>
           )}
         </div>
-        <h1 className="fw-bold text-dark">Manajemen Data & Dashboard Admin</h1>
-        <p className="lead text-secondary col-lg-8 mx-auto">
-          Pantau dan kelola katalog buku, pesanan masuk, daftar pengguna, pesan kontak pelanggan, serta master data kategori.
+        <h1 className="editorial-heading display-6 fw-bold mb-2">
+          Pusat Kendali Bookstore
+        </h1>
+        <p className="lead mx-auto col-lg-7" style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: '1.65' }}>
+          Pantau naskah buku, transaksi pesanan masuk, administrasi peran anggota pembaca, serta master data kategori dan penulis.
         </p>
       </div>
 
       {/* Ringkasan Statistik Utama */}
       <div className="row g-3 mb-4 justify-content-center">
         <div className="col-6 col-md-4 col-lg">
-          <div className="card border-0 shadow-sm rounded-3 bg-white p-3 h-100">
+          <div className="admin-stat-card h-100">
             <div className="d-flex align-items-center">
               <div
-                className="rounded-3 bg-danger-subtle text-danger d-flex align-items-center justify-content-center me-3"
-                style={{ width: '48px', height: '48px', fontSize: '1.3rem' }}
+                className="admin-stat-icon me-3 flex-shrink-0"
+                style={{
+                  backgroundColor: 'var(--accent-light)',
+                  color: 'var(--accent-primary)',
+                }}
               >
                 <i className="fa-solid fa-book"></i>
               </div>
               <div>
-                <span className="text-muted small fw-semibold text-uppercase">Total Buku</span>
-                <h4 className="fw-bold mb-0 text-dark">{totalBooks}</h4>
-                <small className="text-danger fw-medium">Database</small>
+                <span className="text-muted small fw-semibold text-uppercase" style={{ letterSpacing: '0.04em', fontSize: '0.72rem' }}>Total Buku</span>
+                <h4 className="font-serif fw-bold mb-0 text-dark">{totalBooks}</h4>
+                <small style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>Naskah</small>
               </div>
             </div>
           </div>
         </div>
 
         <div className="col-6 col-md-4 col-lg">
-          <div className="card border-0 shadow-sm rounded-3 bg-white p-3 h-100">
+          <div className="admin-stat-card h-100">
             <div className="d-flex align-items-center">
               <div
-                className="rounded-3 bg-warning-subtle text-warning d-flex align-items-center justify-content-center me-3"
-                style={{ width: '48px', height: '48px', fontSize: '1.3rem' }}
+                className="admin-stat-icon me-3 flex-shrink-0"
+                style={{
+                  backgroundColor: '#FAF4E5',
+                  color: '#8C6D1F',
+                }}
               >
-                <i className="fa-solid fa-cart-shopping"></i>
+                <i className="fa-solid fa-receipt"></i>
               </div>
               <div>
-                <span className="text-muted small fw-semibold text-uppercase">Pesanan Masuk</span>
-                <h4 className="fw-bold mb-0 text-dark">{totalOrders}</h4>
-                <small className="text-warning fw-medium">Transaksi</small>
+                <span className="text-muted small fw-semibold text-uppercase" style={{ letterSpacing: '0.04em', fontSize: '0.72rem' }}>Pesanan Masuk</span>
+                <h4 className="font-serif fw-bold mb-0 text-dark">{totalOrders}</h4>
+                <small style={{ color: '#8C6D1F', fontWeight: 600 }}>Transaksi</small>
               </div>
             </div>
           </div>
         </div>
 
         <div className="col-6 col-md-4 col-lg">
-          <div className="card border-0 shadow-sm rounded-3 bg-white p-3 h-100">
+          <div className="admin-stat-card h-100">
             <div className="d-flex align-items-center">
               <div
-                className="rounded-3 bg-info-subtle text-info d-flex align-items-center justify-content-center me-3"
-                style={{ width: '48px', height: '48px', fontSize: '1.3rem' }}
+                className="admin-stat-icon me-3 flex-shrink-0"
+                style={{
+                  backgroundColor: 'var(--accent-secondary-light)',
+                  color: 'var(--accent-secondary)',
+                }}
               >
                 <i className="fa-solid fa-users"></i>
               </div>
               <div>
-                <span className="text-muted small fw-semibold text-uppercase">Pengguna</span>
-                <h4 className="fw-bold mb-0 text-dark">{totalUsers}</h4>
-                <small className="text-info fw-medium">Terdaftar</small>
+                <span className="text-muted small fw-semibold text-uppercase" style={{ letterSpacing: '0.04em', fontSize: '0.72rem' }}>Pengguna</span>
+                <h4 className="font-serif fw-bold mb-0 text-dark">{totalUsers}</h4>
+                <small style={{ color: 'var(--accent-secondary)', fontWeight: 600 }}>Anggota</small>
               </div>
             </div>
           </div>
         </div>
 
         <div className="col-6 col-md-4 col-lg">
-          <div className="card border-0 shadow-sm rounded-3 bg-white p-3 h-100">
+          <div className="admin-stat-card h-100">
             <div className="d-flex align-items-center">
               <div
-                className="rounded-3 bg-primary-subtle text-primary d-flex align-items-center justify-content-center me-3"
-                style={{ width: '48px', height: '48px', fontSize: '1.3rem' }}
+                className="admin-stat-icon me-3 flex-shrink-0"
+                style={{
+                  backgroundColor: 'var(--bg-secondary)',
+                  color: 'var(--text-secondary)',
+                }}
               >
-                <i className="fa-solid fa-envelope"></i>
+                <i className="fa-regular fa-envelope"></i>
               </div>
               <div>
-                <span className="text-muted small fw-semibold text-uppercase">Pesan Masuk</span>
-                <h4 className="fw-bold mb-0 text-dark">{totalContacts}</h4>
-                <small className="text-primary fw-medium">Kontak</small>
+                <span className="text-muted small fw-semibold text-uppercase" style={{ letterSpacing: '0.04em', fontSize: '0.72rem' }}>Surat Masuk</span>
+                <h4 className="font-serif fw-bold mb-0 text-dark">{totalContacts}</h4>
+                <small className="text-muted fw-semibold">Pesan</small>
               </div>
             </div>
           </div>
         </div>
 
         <div className="col-6 col-md-4 col-lg">
-          <div className="card border-0 shadow-sm rounded-3 bg-white p-3 h-100">
+          <div className="admin-stat-card h-100">
             <div className="d-flex align-items-center">
               <div
-                className="rounded-3 bg-success-subtle text-success d-flex align-items-center justify-content-center me-3"
-                style={{ width: '48px', height: '48px', fontSize: '1.3rem' }}
+                className="admin-stat-icon me-3 flex-shrink-0"
+                style={{
+                  backgroundColor: 'var(--bg-secondary)',
+                  color: 'var(--accent-secondary)',
+                }}
               >
                 <i className="fa-solid fa-tags"></i>
               </div>
               <div>
-                <span className="text-muted small fw-semibold text-uppercase">Total Genre</span>
-                <h4 className="fw-bold mb-0 text-dark">{genreList.length}</h4>
-                <small className="text-success fw-medium">Kategori</small>
+                <span className="text-muted small fw-semibold text-uppercase" style={{ letterSpacing: '0.04em', fontSize: '0.72rem' }}>Kategori</span>
+                <h4 className="font-serif fw-bold mb-0 text-dark">{genreList.length}</h4>
+                <small style={{ color: 'var(--accent-secondary)', fontWeight: 600 }}>Genre</small>
               </div>
             </div>
           </div>
@@ -687,83 +721,89 @@ function Admin({ defaultTab = 'book' }) {
 
       {/* Navigasi Tab Admin */}
       <div className="d-flex justify-content-center mb-4">
-        <ul className="nav nav-pills bg-light p-1 rounded-pill shadow-sm border flex-wrap justify-content-center">
+        <ul
+          className="nav nav-pills p-1 rounded-pill flex-wrap justify-content-center"
+          style={{
+            backgroundColor: 'var(--bg-secondary)',
+            border: '1px solid var(--border-subtle)',
+          }}
+        >
           <li className="nav-item">
             <button
               type="button"
               className={`nav-link rounded-pill fw-semibold px-3 py-2 ${
-                activeTab === 'book' ? 'active shadow-sm' : 'text-secondary'
+                activeTab === 'book' ? 'active' : ''
               }`}
               onClick={() => setActiveTab('book')}
             >
               <i className="fa-solid fa-book me-1"></i>
-              Buku
-              <span className="badge ms-1 bg-white text-danger">{totalBooks}</span>
+              Katalog Buku
+              <span className="badge ms-1 rounded-pill" style={{ backgroundColor: activeTab === 'book' ? 'rgba(255,255,255,0.25)' : 'var(--bg-surface)', color: activeTab === 'book' ? '#FFF' : 'var(--accent-primary)' }}>{totalBooks}</span>
             </button>
           </li>
           <li className="nav-item">
             <button
               type="button"
               className={`nav-link rounded-pill fw-semibold px-3 py-2 ${
-                activeTab === 'orders' ? 'active shadow-sm' : 'text-secondary'
+                activeTab === 'orders' ? 'active' : ''
               }`}
               onClick={() => setActiveTab('orders')}
             >
               <i className="fa-solid fa-receipt me-1"></i>
               Pesanan Masuk
-              <span className="badge ms-1 bg-white text-warning">{totalOrders}</span>
+              <span className="badge ms-1 rounded-pill" style={{ backgroundColor: activeTab === 'orders' ? 'rgba(255,255,255,0.25)' : 'var(--bg-surface)', color: activeTab === 'orders' ? '#FFF' : 'var(--text-secondary)' }}>{totalOrders}</span>
             </button>
           </li>
           <li className="nav-item">
             <button
               type="button"
               className={`nav-link rounded-pill fw-semibold px-3 py-2 ${
-                activeTab === 'users' ? 'active shadow-sm' : 'text-secondary'
+                activeTab === 'users' ? 'active' : ''
               }`}
               onClick={() => setActiveTab('users')}
             >
               <i className="fa-solid fa-users me-1"></i>
               Daftar Pengguna
-              <span className="badge ms-1 bg-white text-info">{totalUsers}</span>
+              <span className="badge ms-1 rounded-pill" style={{ backgroundColor: activeTab === 'users' ? 'rgba(255,255,255,0.25)' : 'var(--bg-surface)', color: activeTab === 'users' ? '#FFF' : 'var(--accent-secondary)' }}>{totalUsers}</span>
             </button>
           </li>
           <li className="nav-item">
             <button
               type="button"
               className={`nav-link rounded-pill fw-semibold px-3 py-2 ${
-                activeTab === 'messages' ? 'active shadow-sm' : 'text-secondary'
+                activeTab === 'messages' ? 'active' : ''
               }`}
               onClick={() => setActiveTab('messages')}
             >
-              <i className="fa-solid fa-envelope me-1"></i>
-              Pesan Masuk
-              <span className="badge ms-1 bg-white text-primary">{totalContacts}</span>
+              <i className="fa-regular fa-envelope me-1"></i>
+              Surat Masuk
+              <span className="badge ms-1 rounded-pill" style={{ backgroundColor: activeTab === 'messages' ? 'rgba(255,255,255,0.25)' : 'var(--bg-surface)', color: activeTab === 'messages' ? '#FFF' : 'var(--accent-primary)' }}>{totalContacts}</span>
             </button>
           </li>
           <li className="nav-item">
             <button
               type="button"
               className={`nav-link rounded-pill fw-semibold px-3 py-2 ${
-                activeTab === 'genre' ? 'active shadow-sm' : 'text-secondary'
+                activeTab === 'genre' ? 'active' : ''
               }`}
               onClick={() => setActiveTab('genre')}
             >
               <i className="fa-solid fa-tags me-1"></i>
               Genre
-              <span className="badge ms-1 bg-white text-primary">{genreList.length}</span>
+              <span className="badge ms-1 rounded-pill" style={{ backgroundColor: activeTab === 'genre' ? 'rgba(255,255,255,0.25)' : 'var(--bg-surface)', color: activeTab === 'genre' ? '#FFF' : 'var(--text-secondary)' }}>{genreList.length}</span>
             </button>
           </li>
           <li className="nav-item">
             <button
               type="button"
               className={`nav-link rounded-pill fw-semibold px-3 py-2 ${
-                activeTab === 'author' ? 'active shadow-sm' : 'text-secondary'
+                activeTab === 'author' ? 'active' : ''
               }`}
               onClick={() => setActiveTab('author')}
             >
               <i className="fa-solid fa-user-pen me-1"></i>
               Author
-              <span className="badge ms-1 bg-white text-success">{authorList.length}</span>
+              <span className="badge ms-1 rounded-pill" style={{ backgroundColor: activeTab === 'author' ? 'rgba(255,255,255,0.25)' : 'var(--bg-surface)', color: activeTab === 'author' ? '#FFF' : 'var(--text-secondary)' }}>{authorList.length}</span>
             </button>
           </li>
         </ul>

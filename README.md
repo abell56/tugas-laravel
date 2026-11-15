@@ -1,6 +1,36 @@
 # 📚 Bookstore - Fullstack Web Application (Laravel 12 + React.js)
 
-Aplikasi Toko Buku Online Modern Fullstack yang menggabungkan kekuatan **Laravel 12** sebagai RESTful API Backend dan **React 19 SPA (Single Page Application)** dengan **Vite** serta **Bootstrap 5** sebagai antarmuka pengguna interaktif. Dilengkapi sistem autentikasi database nyata, integrasi gateway pembayaran **Midtrans Snap**, keranjang belanja (*shopping cart*), riwayat transaksi, hingga dashboard monitoring administrator.
+Aplikasi Toko Buku Online Modern Fullstack yang menggabungkan kekuatan **Laravel 12** sebagai RESTful API Backend dan **React 19 SPA (Single Page Application)** dengan **Vite** serta **Bootstrap 5 Custom Design System**. 
+
+Mengusung estetika visual **Warm Tactile Editorial & Anti-AI Human-Crafted**, antarmuka toko buku ini dirancang menyerupai *independent curated bookshop* dengan palet warna natural paper, tipografi editorial serif, bayangan tulang buku fisik (*3D spine elevation*), nota struk kasir (*receipt-style*), serta panel admin berkonsep *publishing house back-office*. Dilengkapi sistem autentikasi database nyata, integrasi gateway pembayaran **Midtrans Snap**, keranjang belanja (*shopping cart*), riwayat transaksi, hingga dashboard monitoring administrator.
+
+---
+
+## 🎨 Warm Tactile Editorial Design System
+
+Aplikasi ini menolak tampilan klise kecerdasan buatan (*AI-generated tropes*) seperti gradien ungu neon, background putih steril (`#FFFFFF`) / hitam pekat (`#000000`), kartu *glassmorphism* berlebihan, dan *boxy table* kaku. Seluruh sistem visual dibangun dengan prinsip editorial, hangat, dan nyata:
+
+### 1. Palet Warna Alami & Bersahaja
+* `--bg-primary` (`#FAF7F2`): *Warm Alabaster* — latar belakang utama bernuansa kertas buku alami.
+* `--bg-secondary` (`#F1ECE1`): *Soft Oat / Cream* — latar halus untuk sidebar, header tabel, dan section sekunder.
+* `--bg-surface` (`#FFFDF9`): *Warm Ivory* — permukaan kartu buku, formulir, dan modal pop-up yang sedikit terangkat.
+* `--text-primary` (`#231F20`): *Deep Espresso Ink* — warna tinta tulisan utama (bukan hitam legam `#000`).
+* `--text-secondary` (`#6B625B`): *Warm Muted Umber* — teks metadata penulis, label subtitle, dan deskripsi.
+* `--accent-primary` (`#C85A32`): *Terracotta / Burnt Sienna* — tombol aksi utama, active link nav, dan ring fokus input.
+* `--accent-hover` (`#A84622`): *Deep Terracotta* — status hover interaktif tombol.
+* `--accent-secondary` (`#3D5A45`): *Forest Sage* — badge stok tersedia, status lunas pesanan, dan label kategori.
+* `--border-subtle` (`#E4DDD3`): *Warm Sand* — garis pemisah lembut 1px menggantikan drop-shadow tebal.
+
+### 2. Tipografi Editorial Karakteristik
+* **Headings, Display Titles & Book Titles**: `'Fraunces'` & `'Lora'` — font serif editorial yang kaya nuansa sastra dan hangat.
+* **UI Controls, Body, Form, & Prices**: `'Plus Jakarta Sans'` — font sans-serif humanis modern yang tajam dan nyaman dibaca.
+
+### 3. Detail Sentuhan Fisik (*Tactile Presentation*)
+* **Rasio Proporsi Buku 2:3**: Kartu sampul buku menggunakan rasio fisik standar buku (2:3) dengan gradien lengkungan tulang buku (*spine shadow elevation* `::before`) dan bayangan halaman.
+* **Fallback Sampul Elegan**: Buku tanpa cover memiliki placeholder bertekstur hangat dengan ikon buku terbuka dan inisial judul.
+* **Modal Detail Editorial Dua Kolom**: Kolom kiri menampilkan cover buku *sticky* yang terangkat; kolom kanan memuat taksonomi genre, penulis, indikator ketersediaan stok warna *forest sage*, sinopsis ber-spasi nyaman, dan selector kuantitas.
+* **Nota Struk Pesanan (*Receipt-Style*)**: Riwayat transaksi dan nota checkout dikemas dalam format slip kasir dengan kode monospaced dan cap status lunas `[ LUNAS ]`.
+* **Publishing House Back-Office**: Panel Admin didesain seperti kantor penerbitan buku modern dengan padding sel lega, permukaan *warm ivory*, dan tombol aksi minimalis bersahaja.
 
 ---
 

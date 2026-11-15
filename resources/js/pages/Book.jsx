@@ -14,7 +14,11 @@ function Book() {
   const [selectedCategory, setSelectedCategory] = useState('Semua')
   const [searchQuery, setSearchQuery] = useState('')
 
-  // State untuk form tambah buku cepat
+  // State untuk Modal Editorial Book Detail
+  const [detailBook, setDetailBook] = useState(null)
+  const [detailQuantity, setDetailQuantity] = useState(1)
+
+  // State untuk form tambah buku cepat (khusus admin)
   const [showForm, setShowForm] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formInput, setFormInput] = useState({
@@ -28,6 +32,7 @@ function Book() {
     cover_photo: '',
   })
   const [alertMessage, setAlertMessage] = useState(null)
+  const [addedCardId, setAddedCardId] = useState(null)
 
   // =========================================================================
   // FETCH DATA BUKU, GENRE, & AUTHOR DARI DATABASE
@@ -59,30 +64,27 @@ function Book() {
       setAuthorList(authorsData)
 
       if (booksData && booksData.length > 0) {
-        // Format buku dari database
         const formatted = booksData.map((b) => {
           let img = b.cover_photo
           if (!img || (!img.startsWith('http://') && !img.startsWith('https://') && !img.startsWith('/'))) {
-            img = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=700&auto=format&fit=crop'
+            img = ''
           }
 
           return {
             id: b.id,
-            title: b.title || b.description || 'Buku Pilihan',
+            title: b.title || b.description || 'Karya Pilihan',
             author: b.author?.name || 'Penulis Bookstore',
             category: b.genre?.name || 'Umum',
             price: Number(b.price) || 85000,
             stock: b.stock ?? 10,
-            description: b.description || 'Deskripsi buku pilihan bermutu.',
+            description: b.description || 'Deskripsi naskah dan ulasan kurator mengenai karya ini.',
             image: img,
             year: b.year || 2024,
             rating: 4.9,
-            reviews: '500+',
           }
         })
         setBookList(formatted)
       } else {
-        // Fallback jika database masih kosong
         setBookList(defaultBooksFallback)
       }
     } catch (err) {
@@ -97,7 +99,6 @@ function Book() {
     loadData()
   }, [])
 
-  // Handle perubahan nilai input form
   const handleInputChange = (e) => {
     const { name, value } = e.target
     setFormInput((prev) => ({
@@ -130,16 +131,14 @@ function Book() {
           description: formInput.title.trim(),
           price: Number(formInput.price) || 85000,
           stock: Number(formInput.stock) || 10,
-          cover_photo:
-            formInput.cover_photo.trim() ||
-            'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=700&auto=format&fit=crop',
+          cover_photo: formInput.cover_photo.trim(),
           genre_id: Number(formInput.genre_id) || defaultGenreId,
           author_id: Number(formInput.author_id) || defaultAuthorId,
         }),
       })
 
       if (response.ok) {
-        setAlertMessage(`Buku "${formInput.title}" berhasil ditambahkan ke database!`)
+        setAlertMessage(`Buku "${formInput.title}" berhasil ditambahkan ke katalog resmi!`)
         setShowForm(false)
         setFormInput({
           title: '',
@@ -196,20 +195,50 @@ function Book() {
     return matchesCategory && matchesSearch
   })
 
+  const handleCardAddToCart = (book) => {
+    addToCart(book)
+    setAddedCardId(book.id)
+    setTimeout(() => setAddedCardId(null), 1800)
+  }
+
+  const handleOpenDetail = (book) => {
+    setDetailBook(book)
+    setDetailQuantity(1)
+  }
+
+  const handleDetailAddToCart = () => {
+    if (!detailBook) return
+    for (let i = 0; i < detailQuantity; i++) {
+      addToCart(detailBook)
+    }
+    setDetailBook(null)
+  }
+
   return (
-    <div className="container my-5">
-      {/* Header Halaman */}
-      <div className="text-center mb-4">
-        <span className="badge bg-primary-subtle text-primary px-3 py-1 rounded-pill mb-2 fw-semibold">
-          <i className="fa-solid fa-book-open me-1"></i> Katalog Real-Time Database
+    <div className="container py-4 py-lg-5">
+      {/* =====================================================================
+          HEADER SECTION (EDITORIAL & HUMAN CRAFTED)
+          ===================================================================== */}
+      <div className="text-center mb-5">
+        <span
+          className="badge rounded-pill px-3 py-1 mb-2"
+          style={{
+            backgroundColor: 'var(--accent-light)',
+            color: 'var(--accent-primary)',
+            border: '1px solid rgba(200, 90, 50, 0.25)',
+          }}
+        >
+          <i className="fa-solid fa-book-bookmark me-1"></i> Rak Buku Terkurasi
         </span>
-        <h1 className="fw-bold">Koleksi Buku Bookstore</h1>
-        <p className="lead text-secondary col-lg-7 mx-auto">
-          Temukan berbagai buku pilihan dari database resmi Bookstore untuk memenuhi kebutuhan bacaan Anda.
+        <h1 className="editorial-heading display-6 fw-bold mb-2">
+          Koleksi Buku & Naskah Pilihan
+        </h1>
+        <p className="lead mx-auto col-lg-7" style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: '1.7' }}>
+          Ditelusuri berdasarkan tema, penulis, atau genre. Setiap buku dicetak dengan kertas berkualitas dan siap melengkapi koleksi bacaan Anda.
         </p>
 
-        {/* Tombol Tambah Buku (Khusus Admin atau untuk Quick Action) */}
-        {user?.role === 'admin' ? (
+        {/* Tombol Tambah Buku (Khusus Admin) */}
+        {user?.role === 'admin' && (
           <div className="d-flex justify-content-center gap-2 mt-3">
             <button
               type="button"
@@ -223,212 +252,219 @@ function Book() {
             </button>
             <Link
               to="/admin"
-              className="btn btn-outline-danger px-4 py-2 rounded-pill fw-semibold shadow-sm"
+              className="btn btn-outline-secondary px-4 py-2 rounded-pill fw-semibold shadow-sm"
             >
-              <i className="fa-solid fa-gear me-2"></i>
-              Buka Panel Admin
+              <i className="fa-solid fa-sliders me-2"></i>
+              Buka Dashboard Admin
             </Link>
           </div>
-        ) : null}
+        )}
       </div>
 
       {/* Alert Notifikasi Sukses */}
       {alertMessage && (
         <div
-          className="alert alert-success alert-dismissible fade show shadow-sm my-3"
+          className="alert alert-success alert-dismissible fade show shadow-sm my-3 d-flex align-items-center"
           role="alert"
+          style={{
+            backgroundColor: 'var(--accent-secondary-light)',
+            borderColor: 'rgba(61, 90, 69, 0.3)',
+            color: 'var(--accent-secondary)',
+            borderRadius: '10px',
+          }}
         >
-          <i className="fa-solid fa-circle-check me-2"></i>
-          {alertMessage}
+          <i className="fa-solid fa-circle-check me-2 fs-5"></i>
+          <div>{alertMessage}</div>
           <button
             type="button"
-            className="btn-close"
+            className="btn-close ms-auto"
             onClick={() => setAlertMessage(null)}
           ></button>
         </div>
       )}
 
-      {/* Formulir Tambah Buku */}
+      {/* =====================================================================
+          FORM TAMBAH BUKU (ADMIN QUICK ACTION)
+          ===================================================================== */}
       {showForm && (
-        <div className="card shadow-sm border-0 bg-white rounded-3 mb-5 p-2">
-          <div className="card-body p-4">
-            <div className="d-flex justify-content-between align-items-center pb-3 mb-3 border-bottom">
-              <h5 className="mb-0 fw-bold text-dark">
-                <i className="fa-solid fa-square-plus text-primary me-2"></i>
-                Formulir Tambah Buku (Database MySQL)
+        <div className="card mb-5 p-3 p-md-4" style={{ backgroundColor: 'var(--bg-surface)' }}>
+          <div className="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom" style={{ borderColor: 'var(--border-subtle) !important' }}>
+            <div>
+              <h5 className="font-serif fw-bold mb-1">
+                <i className="fa-solid fa-pen-nib me-2" style={{ color: 'var(--accent-primary)' }}></i>
+                Registrasi Buku Baru ke Katalog
               </h5>
-              <button
-                type="button"
-                className="btn-close"
-                aria-label="Close"
-                onClick={() => setShowForm(false)}
-              ></button>
+              <p className="small mb-0 text-muted">
+                Entri baru akan langsung tersimpan di database MySQL dan dapat dipesan pelanggan.
+              </p>
             </div>
-
-            <form onSubmit={handleAddBookSubmit}>
-              <div className="row g-3">
-                <div className="col-md-8">
-                  <label className="form-label fw-semibold text-secondary small">
-                    Judul Buku / Deskripsi <span className="text-danger">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="title"
-                    className="form-control"
-                    placeholder="Contoh: Belajar Laravel & React Modern"
-                    value={formInput.title}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label fw-semibold text-secondary small">
-                    Tahun Terbit
-                  </label>
-                  <input
-                    type="number"
-                    name="year"
-                    className="form-control"
-                    placeholder="2024"
-                    value={formInput.year}
-                    onChange={handleInputChange}
-                  />
-                </div>
-
-                <div className="col-md-6">
-                  <label className="form-label fw-semibold text-secondary small">
-                    Penulis (Author) <span className="text-danger">*</span>
-                  </label>
-                  <select
-                    name="author_id"
-                    className="form-select"
-                    value={formInput.author_id}
-                    onChange={handleInputChange}
-                  >
-                    <option value="">-- Pilih Penulis dari Database --</option>
-                    {authorList.map((a) => (
-                      <option key={a.id} value={a.id}>
-                        {a.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="col-md-3">
-                  <label className="form-label fw-semibold text-secondary small">
-                    Kategori (Genre) <span className="text-danger">*</span>
-                  </label>
-                  <select
-                    name="genre_id"
-                    className="form-select"
-                    value={formInput.genre_id}
-                    onChange={handleInputChange}
-                  >
-                    <option value="">-- Pilih Kategori --</option>
-                    {genreList.map((g) => (
-                      <option key={g.id} value={g.id}>
-                        {g.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="col-md-3">
-                  <label className="form-label fw-semibold text-secondary small">
-                    Harga (Rp)
-                  </label>
-                  <input
-                    type="number"
-                    name="price"
-                    className="form-control"
-                    placeholder="Contoh: 85000"
-                    value={formInput.price}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-
-                <div className="col-md-3">
-                  <label className="form-label fw-semibold text-secondary small">
-                    Stok Buku
-                  </label>
-                  <input
-                    type="number"
-                    name="stock"
-                    className="form-control"
-                    placeholder="Contoh: 15"
-                    value={formInput.stock}
-                    onChange={handleInputChange}
-                  />
-                </div>
-
-                <div className="col-md-9">
-                  <label className="form-label fw-semibold text-secondary small">
-                    URL Sampul Gambar (Cover Photo)
-                  </label>
-                  <input
-                    type="text"
-                    name="cover_photo"
-                    className="form-control"
-                    placeholder="https://... (opsional, biarkan kosong untuk gambar default)"
-                    value={formInput.cover_photo}
-                    onChange={handleInputChange}
-                  />
-                </div>
-
-                <div className="col-12 d-flex justify-content-end gap-2 pt-2">
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary px-4"
-                    onClick={() => setShowForm(false)}
-                  >
-                    Batal
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn btn-primary px-4 fw-semibold"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <span
-                          className="spinner-border spinner-border-sm me-2"
-                          role="status"
-                        ></span>
-                        Menyimpan ke DB...
-                      </>
-                    ) : (
-                      <>
-                        <i className="fa-solid fa-save me-1"></i> Simpan Buku
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </form>
+            <button
+              type="button"
+              className="btn-close"
+              onClick={() => setShowForm(false)}
+            ></button>
           </div>
+
+          <form onSubmit={handleAddBookSubmit}>
+            <div className="row g-3">
+              <div className="col-md-6">
+                <label className="form-label fw-semibold small text-secondary">
+                  Judul Buku / Deskripsi Utama <span className="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  className="form-control"
+                  placeholder="Contoh: Filosofi Teras"
+                  value={formInput.title}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+
+              <div className="col-md-3">
+                <label className="form-label fw-semibold small text-secondary">
+                  Penulis (Author)
+                </label>
+                <select
+                  name="author_id"
+                  className="form-select"
+                  value={formInput.author_id}
+                  onChange={handleInputChange}
+                >
+                  <option value="">-- Pilih Penulis --</option>
+                  {authorList.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="col-md-3">
+                <label className="form-label fw-semibold small text-secondary">
+                  Kategori (Genre)
+                </label>
+                <select
+                  name="genre_id"
+                  className="form-select"
+                  value={formInput.genre_id}
+                  onChange={handleInputChange}
+                >
+                  <option value="">-- Pilih Kategori --</option>
+                  {genreList.map((g) => (
+                    <option key={g.id} value={g.id}>
+                      {g.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="col-md-3">
+                <label className="form-label fw-semibold small text-secondary">
+                  Harga Satuan (IDR)
+                </label>
+                <input
+                  type="number"
+                  name="price"
+                  className="form-control"
+                  placeholder="85000"
+                  value={formInput.price}
+                  onChange={handleInputChange}
+                  min="1000"
+                />
+              </div>
+
+              <div className="col-md-3">
+                <label className="form-label fw-semibold small text-secondary">
+                  Ketersediaan Stok
+                </label>
+                <input
+                  type="number"
+                  name="stock"
+                  className="form-control"
+                  placeholder="10"
+                  value={formInput.stock}
+                  onChange={handleInputChange}
+                  min="0"
+                />
+              </div>
+
+              <div className="col-md-6">
+                <label className="form-label fw-semibold small text-secondary">
+                  URL Sampul Buku (Opsional)
+                </label>
+                <input
+                  type="text"
+                  name="cover_photo"
+                  className="form-control"
+                  placeholder="https://images.unsplash.com/..."
+                  value={formInput.cover_photo}
+                  onChange={handleInputChange}
+                />
+              </div>
+
+              <div className="col-12 d-flex justify-content-end gap-2 pt-2">
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary px-4 rounded-pill"
+                  onClick={() => setShowForm(false)}
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary px-4 rounded-pill fw-semibold"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2"></span>
+                      Menyimpan...
+                    </>
+                  ) : (
+                    <>
+                      <i className="fa-solid fa-save me-1"></i> Simpan ke Katalog
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
       )}
 
-      {/* Kontrol Pencarian dan Kategori */}
-      <div className="row g-3 align-items-center justify-content-between mb-4">
-        <div className="col-md-5">
+      {/* =====================================================================
+          FILTERING & SEARCH CONTROLS (WARM SAND BORDERS & TERRACOTTA ACTIVE)
+          ===================================================================== */}
+      <div className="row g-3 align-items-center justify-content-between mb-4 pb-2">
+        {/* Search Bar */}
+        <div className="col-lg-5">
           <div className="input-group">
-            <span className="input-group-text bg-white border-end-0">
-              <i className="fa-solid fa-magnifying-glass text-secondary"></i>
+            <span
+              className="input-group-text border-end-0"
+              style={{
+                backgroundColor: 'var(--bg-surface)',
+                borderColor: 'var(--border-subtle)',
+                color: 'var(--text-secondary)',
+              }}
+            >
+              <i className="fa-solid fa-magnifying-glass"></i>
             </span>
             <input
               type="text"
-              className="form-control border-start-0"
-              placeholder="Cari judul, penulis, atau kategori..."
+              className="form-control border-start-0 ps-0"
+              placeholder="Cari judul naskah, nama penulis, atau tema..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ backgroundColor: 'var(--bg-surface)' }}
             />
             {searchQuery && (
               <button
                 className="btn btn-outline-secondary border-start-0"
                 type="button"
                 onClick={() => setSearchQuery('')}
+                style={{ backgroundColor: 'var(--bg-surface)' }}
               >
                 <i className="fa-solid fa-xmark"></i>
               </button>
@@ -436,15 +472,14 @@ function Book() {
           </div>
         </div>
 
-        <div className="col-md-7 text-md-end">
-          <div className="btn-group flex-wrap" role="group">
+        {/* Category Pills */}
+        <div className="col-lg-7 text-lg-end">
+          <div className="d-flex flex-wrap gap-2 justify-content-lg-end">
             {categories.map((cat) => (
               <button
                 key={cat}
                 type="button"
-                className={`btn btn-sm ${
-                  selectedCategory === cat ? 'btn-primary' : 'btn-outline-primary'
-                }`}
+                className={`filter-pill-btn ${selectedCategory === cat ? 'active' : ''}`}
                 onClick={() => setSelectedCategory(cat)}
               >
                 {cat}
@@ -454,103 +489,327 @@ function Book() {
         </div>
       </div>
 
-      {/* Loading Spinner */}
+      {/* Result Metrics */}
+      <div className="d-flex justify-content-between align-items-center mb-4 text-muted small">
+        <span>
+          Menampilkan <strong>{filteredBooks.length}</strong> judul buku
+          {selectedCategory !== 'Semua' && ` di kategori "${selectedCategory}"`}
+        </span>
+        {searchQuery && (
+          <span>Kata kunci: &ldquo;{searchQuery}&rdquo;</span>
+        )}
+      </div>
+
+      {/* =====================================================================
+          BOOK CATALOG GRID (STRICT 2:3 ASPECT RATIO & REALISTIC SPINE ELEVATION)
+          ===================================================================== */}
       {loading ? (
         <div className="text-center py-5">
-          <div className="spinner-border text-primary mb-3" role="status"></div>
-          <p className="text-secondary">Memuat koleksi buku dari database...</p>
+          <div className="spinner-border text-secondary mb-3" role="status"></div>
+          <p className="text-muted small">Mengambil koleksi dari database...</p>
         </div>
-      ) : (
-        /* Book Catalog Grid */
-        <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
-          {filteredBooks.length > 0 ? (
-            filteredBooks.map((book) => (
+      ) : filteredBooks.length > 0 ? (
+        <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+          {filteredBooks.map((book) => {
+            const hasCover = Boolean(book.image && (book.image.startsWith('http://') || book.image.startsWith('https://') || book.image.startsWith('/')))
+
+            return (
               <div className="col" key={book.id}>
-                <div className="card h-100 shadow-sm border-0 book-card">
-                  <div className="position-relative overflow-hidden">
-                    <img
-                      src={book.image}
-                      className="card-img-top book-cover-img"
-                      alt={book.title}
-                      style={{ height: '260px', objectFit: 'cover' }}
-                      onError={(e) => {
-                        e.currentTarget.onerror = null
-                        e.currentTarget.src =
-                          'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=700&auto=format&fit=crop'
-                      }}
-                    />
-                    {book.category && (
-                      <span className="position-absolute top-0 end-0 m-2 badge bg-primary shadow-sm">
+                <div className="editorial-book-card">
+                  {/* Physical Book Cover Stage */}
+                  <div
+                    className="book-cover-stage"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleOpenDetail(book)}
+                    title="Klik untuk melihat detail lengkap"
+                  >
+                    <div className="book-cover-frame">
+                      {hasCover ? (
+                        <img
+                          src={book.image}
+                          alt={book.title}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null
+                            e.currentTarget.src =
+                              'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=700&auto=format&fit=crop'
+                          }}
+                        />
+                      ) : (
+                        <div className="book-cover-fallback">
+                          <div className="book-cover-fallback-icon">
+                            <i className="fa-solid fa-book"></i>
+                          </div>
+                          <span className="book-cover-fallback-title">
+                            {book.title}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Book Metadata & Actions */}
+                  <div className="p-3 d-flex flex-column flex-grow-1">
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <span className="book-card-genre">
                         {book.category}
                       </span>
-                    )}
-                    <span className="position-absolute top-0 start-0 m-2 badge bg-dark bg-opacity-75 shadow-sm">
-                      <i className="fa-solid fa-box me-1"></i>
-                      Stok: {book.stock}
-                    </span>
-                  </div>
-                  <div className="card-body d-flex flex-column">
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <small className="text-muted fw-medium text-truncate col-7">
-                        <i className="fa-solid fa-user-pen me-1"></i>
-                        {book.author}
-                      </small>
-                      <small className="text-warning fw-semibold">
-                        <i className="fa-solid fa-star me-1"></i>
-                        {book.rating}
-                      </small>
+                      <span
+                        className="badge rounded-pill"
+                        style={{
+                          backgroundColor:
+                            book.stock > 0
+                              ? 'var(--accent-secondary-light)'
+                              : '#FDF0EE',
+                          color:
+                            book.stock > 0
+                              ? 'var(--accent-secondary)'
+                              : '#B93822',
+                          border:
+                            book.stock > 0
+                              ? '1px solid rgba(61, 90, 69, 0.25)'
+                              : '1px solid rgba(185, 56, 34, 0.25)',
+                          fontSize: '0.72rem',
+                        }}
+                      >
+                        {book.stock > 0 ? `Stok: ${book.stock}` : 'Habis'}
+                      </span>
                     </div>
-                    <h5
-                      className="card-title fw-bold text-dark mb-2 text-truncate"
+
+                    <h3
+                      className="book-card-title"
                       title={book.title}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => handleOpenDetail(book)}
                     >
                       {book.title}
-                    </h5>
-                    <p className="card-text text-secondary small flex-grow-1">
+                    </h3>
+
+                    <p className="book-card-author mb-2">
+                      {book.author}
+                    </p>
+
+                    <p
+                      className="small text-muted flex-grow-1 mb-3"
+                      style={{
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        lineHeight: '1.5',
+                      }}
+                    >
                       {book.description}
                     </p>
-                    <div className="d-flex justify-content-between align-items-center pt-3 border-top mt-2">
-                      <span className="text-primary fw-bold fs-5">
+
+                    <div className="d-flex justify-content-between align-items-center pt-2 border-top mt-auto" style={{ borderColor: 'var(--border-subtle) !important' }}>
+                      <span className="book-price-tag fs-6">
                         {formatRupiah(book.price)}
                       </span>
                       <div className="btn-group btn-group-sm">
                         <button
                           type="button"
-                          className="btn btn-outline-secondary"
-                          title="Lihat Detail Buku"
-                          onClick={() =>
-                            alert(
-                              `Detail Buku:\nJudul: ${book.title}\nPenulis: ${book.author}\nKategori: ${book.category}\nHarga: ${formatRupiah(book.price)}\nStok: ${book.stock}\nSinopsis: ${book.description}`
-                            )
-                          }
+                          className="btn btn-outline-secondary px-2"
+                          title="Lihat Sinopsis Lengkap"
+                          onClick={() => handleOpenDetail(book)}
                         >
-                          <i className="fa-solid fa-eye"></i>
+                          <i className="fa-regular fa-eye"></i>
                         </button>
                         <button
                           type="button"
-                          className="btn btn-primary fw-semibold px-2"
+                          className="btn btn-outline-primary px-3 rounded-end-pill"
                           title="Masukkan ke Keranjang"
-                          onClick={() => addToCart(book)}
+                          onClick={() => handleCardAddToCart(book)}
                           disabled={book.stock <= 0}
                         >
-                          <i className="fa-solid fa-cart-plus me-1"></i>
-                          {book.stock <= 0 ? 'Habis' : '+ Keranjang'}
+                          <i className={`fa-solid ${addedCardId === book.id ? 'fa-check' : 'fa-basket-shopping'} me-1`}></i>
+                          {addedCardId === book.id ? 'Tersimpan' : '+ Keranjang'}
                         </button>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            ))
-          ) : (
-            <div className="col-12 text-center py-5">
-              <i className="fa-solid fa-book-open text-muted fs-1 mb-3"></i>
-              <h5 className="text-secondary fw-semibold">Buku Tidak Ditemukan</h5>
-              <p className="text-muted small">
-                Tidak ada buku yang sesuai dengan kriteria pencarian &quot;{searchQuery}&quot;.
-              </p>
+            )
+          })}
+        </div>
+      ) : (
+        <div className="text-center py-5 card p-5" style={{ backgroundColor: 'var(--bg-surface)' }}>
+          <i className="fa-solid fa-book-open text-muted fs-1 mb-3"></i>
+          <h5 className="font-serif fw-bold text-dark mb-1">
+            Belum Menemukan Buku yang Dicari
+          </h5>
+          <p className="small text-muted mb-3">
+            Tidak ada buku yang sesuai dengan pencarian &ldquo;{searchQuery}&rdquo;.
+          </p>
+          <div>
+            <button
+              type="button"
+              className="btn btn-outline-secondary btn-sm rounded-pill px-3"
+              onClick={() => {
+                setSearchQuery('')
+                setSelectedCategory('Semua')
+              }}
+            >
+              Reset Filter Pencarian
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* =====================================================================
+          TWO-COLUMN EDITORIAL BOOK DETAIL MODAL
+          ===================================================================== */}
+      {detailBook && (
+        <div
+          className="modal fade show d-block editorial-detail-modal"
+          style={{ backgroundColor: 'rgba(35, 31, 32, 0.65)' }}
+          tabIndex="-1"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="modal-dialog modal-dialog-centered modal-lg">
+            <div className="modal-content shadow-lg">
+              <div className="modal-header d-flex justify-content-between align-items-center py-3 px-4">
+                <span className="badge rounded-pill" style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', color: 'var(--accent-primary)' }}>
+                  <i className="fa-solid fa-bookmark me-1"></i> Detail Naskah & Buku
+                </span>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setDetailBook(null)}
+                ></button>
+              </div>
+
+              <div className="modal-body p-0">
+                <div className="row g-0">
+                  {/* Left Column: Sticky Book Cover Showcase with Physical Elevation */}
+                  <div className="col-md-5 editorial-detail-stage">
+                    <div className="editorial-detail-cover">
+                      {detailBook.image ? (
+                        <img
+                          src={detailBook.image}
+                          alt={detailBook.title}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null
+                            e.currentTarget.src =
+                              'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=700&auto=format&fit=crop'
+                          }}
+                        />
+                      ) : (
+                        <div className="book-cover-fallback">
+                          <div className="book-cover-fallback-icon">
+                            <i className="fa-solid fa-book-open"></i>
+                          </div>
+                          <span className="book-cover-fallback-title">
+                            {detailBook.title}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right Column: Full Title, Author Link, Genre Tag, Stock Indicator & Order Actions */}
+                  <div className="col-md-7 p-4 p-md-5 d-flex flex-column justify-content-between">
+                    <div>
+                      <div className="d-flex align-items-center gap-2 mb-2">
+                        <span className="book-card-genre">
+                          {detailBook.category}
+                        </span>
+                        <span
+                          className="badge rounded-pill"
+                          style={{
+                            backgroundColor:
+                              detailBook.stock > 0
+                                ? 'var(--accent-secondary-light)'
+                                : '#FDF0EE',
+                            color:
+                              detailBook.stock > 0
+                                ? 'var(--accent-secondary)'
+                                : '#B93822',
+                            border:
+                              detailBook.stock > 0
+                                ? '1px solid rgba(61, 90, 69, 0.25)'
+                                : '1px solid rgba(185, 56, 34, 0.25)',
+                            fontSize: '0.75rem',
+                          }}
+                        >
+                          <i className={`fa-solid ${detailBook.stock > 0 ? 'fa-check' : 'fa-xmark'} me-1`}></i>
+                          {detailBook.stock > 0
+                            ? `Tersedia: ${detailBook.stock} eksemplar`
+                            : 'Stok Habis'}
+                        </span>
+                      </div>
+
+                      <h2 className="editorial-heading fw-bold mb-1" style={{ fontSize: '1.65rem' }}>
+                        {detailBook.title}
+                      </h2>
+
+                      <p className="small mb-3" style={{ color: 'var(--text-secondary)' }}>
+                        Ditulis oleh <strong style={{ color: 'var(--text-primary)' }}>{detailBook.author}</strong> • Edisi Penerbit Resmi
+                      </p>
+
+                      <div className="p-3 rounded-3 mb-3" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
+                        <div className="d-flex justify-content-between align-items-center">
+                          <span className="small text-muted">Harga Resmi:</span>
+                          <span className="book-price-tag fs-4">
+                            {formatRupiah(detailBook.price)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <h6 className="fw-bold mb-2 small text-uppercase" style={{ letterSpacing: '0.04em', color: 'var(--text-secondary)' }}>
+                        Sinopsis & Catatan Kurator
+                      </h6>
+                      <p className="small text-secondary mb-4" style={{ lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>
+                        {detailBook.description}
+                      </p>
+                    </div>
+
+                    {/* Order & Quantity Flow */}
+                    <div className="pt-3 border-top" style={{ borderColor: 'var(--border-subtle) !important' }}>
+                      <div className="d-flex align-items-center gap-3">
+                        <div className="d-flex align-items-center border rounded-pill px-2 py-1" style={{ borderColor: 'var(--border-subtle) !important', backgroundColor: 'var(--bg-surface)' }}>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-link text-decoration-none text-dark p-1"
+                            onClick={() => setDetailQuantity((q) => Math.max(1, q - 1))}
+                            disabled={detailQuantity <= 1}
+                          >
+                            <i className="fa-solid fa-minus"></i>
+                          </button>
+                          <span className="px-3 fw-bold small">
+                            {detailQuantity}
+                          </span>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-link text-decoration-none text-dark p-1"
+                            onClick={() => setDetailQuantity((q) => Math.min(detailBook.stock || 10, q + 1))}
+                            disabled={detailQuantity >= (detailBook.stock || 10)}
+                          >
+                            <i className="fa-solid fa-plus"></i>
+                          </button>
+                        </div>
+
+                        <button
+                          type="button"
+                          className="btn btn-primary flex-grow-1 rounded-pill fw-semibold py-2 d-inline-flex align-items-center justify-content-center gap-2"
+                          onClick={handleDetailAddToCart}
+                          disabled={detailBook.stock <= 0}
+                        >
+                          <i className="fa-solid fa-basket-shopping"></i>
+                          <span>
+                            {detailBook.stock <= 0
+                              ? 'Stok Sedang Habis'
+                              : `+ Tambah (${formatRupiah(detailBook.price * detailQuantity)})`}
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          )}
+          </div>
         </div>
       )}
     </div>

@@ -1,0 +1,506 @@
+/* ==========================================================================
+   Bookstore Design System — Warm Tactile Editorial Theme
+   ========================================================================== */
+
+:root {
+  /* Color Palette Tokens */
+  --bg-primary: #FAF7F2;       /* Warm alabaster / natural paper background */
+  --bg-secondary: #F1ECE1;     /* Soft oat / cream for subtle sections, sidebars, headers */
+  --bg-surface: #FFFDF9;       /* Warm ivory for elevated book cards, forms, modals */
+  --text-primary: #231F20;     /* Deep espresso ink — never pure #000 */
+  --text-secondary: #6B625B;   /* Warm muted umber for authors, metadata, and subtitles */
+  --text-muted: #8C827A;       /* Subtle captions, timestamps, placeholders */
+  --accent-primary: #C85A32;   /* Terracotta / burnt sienna for primary buttons, active links */
+  --accent-hover: #A84622;     /* Deep terracotta hover state */
+  --accent-light: #FBF0EB;     /* Very soft terracotta tint for active badges/pills */
+  --accent-secondary: #3D5A45; /* Forest sage for stock availability badges, success states */
+  --accent-secondary-light: #EEF3EF; /* Soft sage tint for badges */
+  --accent-gold: #B8860B;      /* Warm book-cloth gold for stars/highlights */
+  --border-subtle: #E4DDD3;   /* Warm sand 1px borders replacing heavy drop shadows */
+  --border-strong: #D5CBC0;   /* Slightly deeper border for cards on hover & active inputs */
+
+  /* Typography Tokens */
+  --font-serif: 'Fraunces', 'Lora', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Physical Book Shadows & Elevation */
+  --shadow-subtle: 0 1px 3px rgba(35, 31, 32, 0.05);
+  --shadow-card: 0 4px 12px -2px rgba(35, 31, 32, 0.06), 0 2px 4px -1px rgba(35, 31, 32, 0.04);
+  --shadow-card-hover: 0 12px 28px -4px rgba(35, 31, 32, 0.12), 0 4px 8px -2px rgba(35, 31, 32, 0.06);
+  --shadow-book: -4px 0 10px -2px rgba(35, 31, 32, 0.15), 0 8px 24px -4px rgba(35, 31, 32, 0.16), 0 2px 6px rgba(35, 31, 32, 0.08);
+  --shadow-modal: 0 24px 48px -8px rgba(35, 31, 32, 0.22);
+}
+
+/* ==========================================================================
+   Global Base & Typography
+   ========================================================================== */
+html, body {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-sans) !important;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Headings in Editorial Serif */
+h1, h2, h3, h4, .font-serif, .editorial-heading {
+  font-family: var(--font-serif) !important;
+  color: var(--text-primary) !important;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+h5, h6 {
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+p {
+  color: var(--text-secondary);
+}
+
+a {
+  color: var(--accent-primary);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+::selection {
+  background-color: rgba(200, 90, 50, 0.2);
+  color: var(--text-primary);
+}
+
+/* ==========================================================================
+   Bootstrap Global Overrides
+   ========================================================================== */
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--accent-primary) !important;
+  border-color: var(--accent-primary) !important;
+  color: #FFFDF9 !important;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 2px rgba(35, 31, 32, 0.06);
+}
+
+.btn-primary:hover, .btn-primary:focus-visible, .btn-primary:active {
+  background-color: var(--accent-hover) !important;
+  border-color: var(--accent-hover) !important;
+  color: #FFFDF9 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(200, 90, 50, 0.25) !important;
+}
+
+.btn-outline-primary {
+  background-color: transparent !important;
+  border-color: var(--border-subtle) !important;
+  color: var(--accent-primary) !important;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-outline-primary:hover, .btn-outline-primary:active, .btn-outline-primary.active {
+  background-color: var(--accent-primary) !important;
+  border-color: var(--accent-primary) !important;
+  color: #FFFDF9 !important;
+  box-shadow: 0 2px 8px rgba(200, 90, 50, 0.2) !important;
+}
+
+.btn-outline-secondary {
+  background-color: transparent !important;
+  border-color: var(--border-subtle) !important;
+  color: var(--text-secondary) !important;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-strong) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Form Controls & Inputs */
+.form-control, .form-select {
+  background-color: var(--bg-surface) !important;
+  border: 1px solid var(--border-subtle) !important;
+  color: var(--text-primary) !important;
+  border-radius: 8px !important;
+  padding: 0.625rem 0.875rem;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--accent-primary) !important;
+  box-shadow: 0 0 0 3px rgba(200, 90, 50, 0.16) !important;
+  outline: none;
+}
+
+.input-group-text {
+  background-color: var(--bg-secondary) !important;
+  border: 1px solid var(--border-subtle) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Cards & Surfaces */
+.card {
+  background-color: var(--bg-surface) !important;
+  border: 1px solid var(--border-subtle) !important;
+  box-shadow: var(--shadow-subtle) !important;
+  border-radius: 12px !important;
+}
+
+.card-header {
+  background-color: var(--bg-secondary) !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+}
+
+.card-footer {
+  background-color: var(--bg-secondary) !important;
+  border-top: 1px solid var(--border-subtle) !important;
+}
+
+/* Background Utilities */
+.bg-light, .bg-body-tertiary {
+  background-color: var(--bg-secondary) !important;
+}
+
+.bg-white {
+  background-color: var(--bg-surface) !important;
+}
+
+/* Badges */
+.badge {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.badge.bg-primary {
+  background-color: var(--accent-primary) !important;
+  color: #FFFDF9 !important;
+}
+
+.badge.bg-primary-subtle {
+  background-color: var(--accent-light) !important;
+  color: var(--accent-primary) !important;
+  border: 1px solid rgba(200, 90, 50, 0.2) !important;
+}
+
+.badge.bg-success, .badge.bg-success-subtle {
+  background-color: var(--accent-secondary-light) !important;
+  color: var(--accent-secondary) !important;
+  border: 1px solid rgba(61, 90, 69, 0.25) !important;
+}
+
+.badge.bg-secondary, .badge.bg-secondary-subtle {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-secondary) !important;
+  border: 1px solid var(--border-subtle) !important;
+}
+
+.badge.bg-warning, .badge.bg-warning-subtle {
+  background-color: #FAF4E5 !important;
+  color: #8C6D1F !important;
+  border: 1px solid rgba(184, 134, 11, 0.25) !important;
+}
+
+.badge.bg-danger, .badge.bg-danger-subtle {
+  background-color: #FDF0EE !important;
+  color: #B93822 !important;
+  border: 1px solid rgba(185, 56, 34, 0.25) !important;
+}
+
+/* Tables */
+.table {
+  color: var(--text-primary) !important;
+  border-color: var(--border-subtle) !important;
+  margin-bottom: 0;
+}
+
+.table thead th, .table-light {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-secondary) !important;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  padding: 0.85rem 1rem;
+}
+
+.table tbody tr {
+  background-color: var(--bg-surface) !important;
+  transition: background-color 0.15s ease;
+}
+
+.table tbody tr:hover {
+  background-color: #F6F1E7 !important;
+}
+
+.table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+
+/* Modals */
+.modal-content {
+  background-color: var(--bg-surface) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 14px !important;
+  box-shadow: var(--shadow-modal) !important;
+  overflow: hidden;
+}
+
+.modal-header {
+  background-color: var(--bg-secondary) !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  padding: 1rem 1.5rem;
+}
+
+.modal-footer {
+  background-color: var(--bg-secondary) !important;
+  border-top: 1px solid var(--border-subtle) !important;
+  padding: 1rem 1.5rem;
+}
+
+/* Nav Pills */
+.nav-pills .nav-link {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 50rem;
+  padding: 0.45rem 1.1rem;
+  transition: all 0.2s ease;
+}
+
+.nav-pills .nav-link:hover {
+  color: var(--accent-primary);
+  background-color: rgba(200, 90, 50, 0.06);
+}
+
+.nav-pills .nav-link.active {
+  background-color: var(--accent-primary) !important;
+  color: #FFFDF9 !important;
+  box-shadow: 0 2px 8px rgba(200, 90, 50, 0.28) !important;
+}
+
+/* ==========================================================================
+   Editorial Book Elements & Tactile Details
+   ========================================================================== */
+
+/* Physical Book Cover Presentation */
+.editorial-book-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+}
+
+.editorial-book-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-card-hover) !important;
+}
+
+/* Physical Book Spine & Cover Wrapper */
+.book-cover-stage {
+  position: relative;
+  width: 100%;
+  background-color: var(--bg-secondary);
+  padding: 1.25rem 1.25rem 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.book-cover-frame {
+  position: relative;
+  width: 100%;
+  max-width: 200px;
+  aspect-ratio: 2 / 3;
+  border-radius: 4px 8px 8px 4px;
+  overflow: hidden;
+  box-shadow: var(--shadow-book);
+  transition: transform 0.3s ease;
+  background-color: var(--bg-secondary);
+}
+
+/* Spine shadow highlight effect on left border */
+.book-cover-frame::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 14px;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.28) 0%, rgba(0, 0, 0, 0.12) 35%, rgba(255, 255, 255, 0.18) 70%, transparent 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Subtle page edge line on right */
+.book-cover-frame::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.08), rgba(255, 255, 255, 0.3));
+  z-index: 2;
+  pointer-events: none;
+}
+
+.book-cover-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.editorial-book-card:hover .book-cover-frame {
+  transform: scale(1.02);
+}
+
+/* Fallback Book Cover Placeholder */
+.book-cover-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  background: linear-gradient(145deg, #F5EFEB 0%, #E8DFD5 100%);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+}
+
+.book-cover-fallback-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(200, 90, 50, 0.12);
+  color: var(--accent-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+  font-size: 1.25rem;
+}
+
+.book-cover-fallback-title {
+  font-family: var(--font-serif);
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text-primary);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Receipt Style Transaction Cards */
+.receipt-card {
+  background-color: var(--bg-surface);
+  border: 1px dashed var(--border-strong);
+  border-radius: 10px;
+  padding: 1.25rem;
+  position: relative;
+  box-shadow: 0 2px 6px rgba(35, 31, 32, 0.04);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.receipt-card:hover {
+  border-color: var(--accent-primary);
+  transform: translateY(-2px);
+}
+
+.receipt-order-number {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+/* Editorial Hero Reading Room */
+.editorial-hero-wrapper {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+}
+
+.editorial-hero-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+}
+
+/* Category Filter Pill */
+.filter-pill-btn {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.875rem;
+  padding: 0.4rem 1rem;
+  border-radius: 50rem;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.filter-pill-btn:hover {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.filter-pill-btn.active {
+  background-color: var(--accent-primary) !important;
+  color: #FFFDF9 !important;
+  border-color: var(--accent-primary) !important;
+  box-shadow: 0 2px 6px rgba(200, 90, 50, 0.25);
+}
+
+/* Price Typography */
+.book-price-tag {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  color: var(--accent-primary);
+  letter-spacing: -0.01em;
+}

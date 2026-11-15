@@ -52,41 +52,84 @@ function Contact() {
   }
 
   return (
-    <div className="container my-5">
+    <div className="container py-5">
       {/* Header Contact */}
       <div className="text-center mb-5">
-        <span className="badge bg-primary-subtle text-primary px-3 py-1 rounded-pill mb-2">Hubungi Kami</span>
-        <h1 className="fw-bold">Kami Siap Membantu Anda</h1>
-        <p className="lead text-secondary col-lg-7 mx-auto">
-          Punya pertanyaan seputar ketersediaan buku, status pengiriman, atau ingin merekomendasikan judul baru? Kirimkan pesan Anda langsung ke Admin Bookstore melalui formulir di bawah ini.
+        <span
+          className="badge rounded-pill px-3 py-1 mb-2 fw-semibold"
+          style={{
+            backgroundColor: 'var(--accent-light)',
+            color: 'var(--accent-primary)',
+            border: '1px solid rgba(200, 90, 50, 0.25)',
+            fontSize: '0.78rem',
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+          }}
+        >
+          <i className="fa-regular fa-paper-plane me-1"></i> Hubungi Kami
+        </span>
+        <h1 className="editorial-heading display-6 fw-bold mb-2">
+          Kami Siap Membantu Anda
+        </h1>
+        <p className="lead mx-auto col-lg-7" style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: '1.7' }}>
+          Punya pertanyaan seputar ketersediaan naskah, status pengiriman faktur, atau ingin merekomendasikan judul baru? Kirimkan surat pesan Anda kepada tim kurator Bookstore.
         </p>
       </div>
 
       <div className="row g-5">
         {/* Kolom Kiri: Informasi Kontak */}
         <div className="col-lg-5">
-          <div className="card border-0 shadow-sm p-4 bg-body-tertiary h-100">
-            <h4 className="fw-bold text-dark mb-4">Informasi Kontak</h4>
+          <div
+            className="card p-4 p-md-5 h-100"
+            style={{
+              backgroundColor: 'var(--bg-secondary)',
+              border: '1px solid var(--border-subtle)',
+              borderRadius: '16px',
+            }}
+          >
+            <h4 className="editorial-heading fw-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+              Ruang Kontak
+            </h4>
 
             <div className="d-flex align-items-start gap-3 mb-4">
-              <div className="text-primary fs-4 mt-1">
+              <div
+                className="rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0"
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  backgroundColor: 'var(--bg-surface)',
+                  color: 'var(--accent-primary)',
+                  fontSize: '1rem',
+                  border: '1px solid var(--border-subtle)',
+                }}
+              >
                 <i className="fa-solid fa-location-dot"></i>
               </div>
               <div>
-                <h6 className="fw-bold mb-1">Alamat Toko & Kantor</h6>
-                <p className="text-secondary mb-0 small">
+                <h6 className="fw-bold mb-1" style={{ color: 'var(--text-primary)' }}>Alamat Toko & Kantor</h6>
+                <p className="mb-0 small" style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>
                   Jl. Lenteng Agung Raya No. 20, Jagakarsa, Jakarta Selatan, DKI Jakarta 12610
                 </p>
               </div>
             </div>
 
             <div className="d-flex align-items-start gap-3 mb-4">
-              <div className="text-primary fs-4 mt-1">
-                <i className="fa-solid fa-envelope"></i>
+              <div
+                className="rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0"
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  backgroundColor: 'var(--bg-surface)',
+                  color: 'var(--accent-primary)',
+                  fontSize: '1rem',
+                  border: '1px solid var(--border-subtle)',
+                }}
+              >
+                <i className="fa-regular fa-envelope"></i>
               </div>
               <div>
-                <h6 className="fw-bold mb-1">Email Resmi</h6>
-                <p className="text-secondary mb-0 small">
+                <h6 className="fw-bold mb-1" style={{ color: 'var(--text-primary)' }}>Surel Resmi</h6>
+                <p className="mb-0 small" style={{ color: 'var(--text-secondary)' }}>
                   support@bookstore.id<br />
                   kerjasama@bookstore.id
                 </p>
@@ -94,65 +137,112 @@ function Contact() {
             </div>
 
             <div className="d-flex align-items-start gap-3 mb-4">
-              <div className="text-primary fs-4 mt-1">
+              <div
+                className="rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0"
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  backgroundColor: 'var(--bg-surface)',
+                  color: 'var(--accent-secondary)',
+                  fontSize: '1rem',
+                  border: '1px solid var(--border-subtle)',
+                }}
+              >
                 <i className="fa-solid fa-phone"></i>
               </div>
               <div>
-                <h6 className="fw-bold mb-1">Telepon & WhatsApp</h6>
-                <p className="text-secondary mb-0 small">
+                <h6 className="fw-bold mb-1" style={{ color: 'var(--text-primary)' }}>Telepon & WhatsApp</h6>
+                <p className="mb-0 small" style={{ color: 'var(--text-secondary)' }}>
                   +62 (021) 7890-1234<br />
-                  +62 812-3456-7890 (WhatsApp CS)
+                  +62 812-3456-7890 (Layanan CS)
                 </p>
               </div>
             </div>
 
             <div className="d-flex align-items-start gap-3 mb-4">
-              <div className="text-primary fs-4 mt-1">
+              <div
+                className="rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0"
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  backgroundColor: 'var(--bg-surface)',
+                  color: 'var(--accent-gold)',
+                  fontSize: '1rem',
+                  border: '1px solid var(--border-subtle)',
+                }}
+              >
                 <i className="fa-regular fa-clock"></i>
               </div>
               <div>
-                <h6 className="fw-bold mb-1">Jam Operasional</h6>
-                <p className="text-secondary mb-0 small">
+                <h6 className="fw-bold mb-1" style={{ color: 'var(--text-primary)' }}>Jam Kerja Kurator</h6>
+                <p className="mb-0 small" style={{ color: 'var(--text-secondary)' }}>
                   Senin - Jumat: 08.00 - 20.00 WIB<br />
                   Sabtu - Minggu: 09.00 - 17.00 WIB
                 </p>
               </div>
             </div>
 
-            <div className="pt-3 border-top mt-auto">
-              <h6 className="fw-bold mb-2">Ikuti Media Sosial Kami:</h6>
+            <div className="pt-3 border-top mt-auto" style={{ borderColor: 'var(--border-subtle) !important' }}>
+              <h6 className="fw-bold mb-2 small text-uppercase" style={{ letterSpacing: '0.04em', color: 'var(--text-secondary)' }}>
+                Media Sosial Kami
+              </h6>
               <div className="d-flex gap-2">
-                <a href="#" className="social-icon-btn"><i className="fa-brands fa-instagram"></i></a>
-                <a href="#" className="social-icon-btn"><i className="fa-brands fa-facebook-f"></i></a>
-                <a href="#" className="social-icon-btn"><i className="fa-brands fa-x-twitter"></i></a>
-                <a href="#" className="social-icon-btn"><i className="fa-brands fa-youtube"></i></a>
+                <a href="#instagram" className="btn btn-outline-secondary btn-sm rounded-circle p-2" style={{ width: '36px', height: '36px' }}>
+                  <i className="fa-brands fa-instagram"></i>
+                </a>
+                <a href="#twitter" className="btn btn-outline-secondary btn-sm rounded-circle p-2" style={{ width: '36px', height: '36px' }}>
+                  <i className="fa-brands fa-x-twitter"></i>
+                </a>
+                <a href="#youtube" className="btn btn-outline-secondary btn-sm rounded-circle p-2" style={{ width: '36px', height: '36px' }}>
+                  <i className="fa-brands fa-youtube"></i>
+                </a>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Kolom Kanan: Form Kontak Bootstrap */}
+        {/* Kolom Kanan: Form Kontak */}
         <div className="col-lg-7">
-          <div className="card border-0 shadow-sm p-4 p-md-5">
-            <h4 className="fw-bold text-dark mb-2">Kirim Pesan ke Admin</h4>
-            <p className="text-secondary small mb-4">
-              Pesan Anda akan langsung masuk ke database Inbox Admin Bookstore dan direspon dalam waktu 1x24 jam kerja.
+          <div className="card p-4 p-md-5" style={{ backgroundColor: 'var(--bg-surface)' }}>
+            <h4 className="editorial-heading fw-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+              Kirim Surat / Pertanyaan
+            </h4>
+            <p className="small mb-4" style={{ color: 'var(--text-secondary)' }}>
+              Pesan Anda akan langsung tercatat di kotak surat admin Bookstore dan direspon dalam kurun waktu 1x24 jam kerja.
             </p>
 
             {contactSubmitted && (
-              <div className="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert">
-                <i className="fa-solid fa-circle-check fs-4 me-3"></i>
-                <div>
-                  <strong>Pesan Berhasil Terkirim!</strong> Terima kasih telah menghubungi kami. Pesan Anda telah tersimpan di sistem dan tim Admin Bookstore akan segera membalas ke email Anda.
+              <div
+                className="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4"
+                role="alert"
+                style={{
+                  backgroundColor: 'var(--accent-secondary-light)',
+                  borderColor: 'rgba(61, 90, 69, 0.3)',
+                  color: 'var(--accent-secondary)',
+                  borderRadius: '10px',
+                }}
+              >
+                <i className="fa-solid fa-circle-check fs-5 me-3"></i>
+                <div className="small">
+                  <strong>Surat Berhasil Terkirim!</strong> Terima kasih telah menghubungi Bookstore. Tim kurator akan segera membalas ke alamat surel Anda.
                 </div>
                 <button type="button" className="btn-close ms-auto" onClick={() => setContactSubmitted(false)}></button>
               </div>
             )}
 
             {errorMsg && (
-              <div className="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
-                <i className="fa-solid fa-triangle-exclamation fs-4 me-3"></i>
-                <div>
+              <div
+                className="alert alert-danger alert-dismissible fade show d-flex align-items-center mb-4"
+                role="alert"
+                style={{
+                  backgroundColor: '#FDF0EE',
+                  borderColor: 'rgba(185, 56, 34, 0.3)',
+                  color: '#B93822',
+                  borderRadius: '10px',
+                }}
+              >
+                <i className="fa-solid fa-triangle-exclamation fs-5 me-3"></i>
+                <div className="small">
                   <strong>Terjadi Kesalahan:</strong> {errorMsg}
                 </div>
                 <button type="button" className="btn-close ms-auto" onClick={() => setErrorMsg(null)}></button>
@@ -162,7 +252,9 @@ function Contact() {
             <form onSubmit={handleContactSubmit}>
               <div className="row g-3">
                 <div className="col-md-6">
-                  <label className="form-label fw-semibold">Nama Lengkap</label>
+                  <label className="form-label small fw-semibold text-secondary">
+                    Nama Lengkap <span className="text-danger">*</span>
+                  </label>
                   <input
                     type="text"
                     className="form-control"
@@ -174,11 +266,13 @@ function Contact() {
                 </div>
 
                 <div className="col-md-6">
-                  <label className="form-label fw-semibold">Alamat Email</label>
+                  <label className="form-label small fw-semibold text-secondary">
+                    Alamat Email <span className="text-danger">*</span>
+                  </label>
                   <input
                     type="email"
                     className="form-control"
-                    placeholder="email@contoh.com"
+                    placeholder="alamat@email.com"
                     required
                     value={contactForm.email}
                     onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
@@ -186,48 +280,52 @@ function Contact() {
                 </div>
 
                 <div className="col-12">
-                  <label className="form-label fw-semibold">Kategori Pesan</label>
+                  <label className="form-label small fw-semibold text-secondary">
+                    Topik / Kategori Pesan
+                  </label>
                   <select
                     className="form-select"
                     value={contactForm.subject}
                     onChange={(e) => setContactForm({ ...contactForm, subject: e.target.value })}
                   >
-                    <option value="Pertanyaan Buku">Pertanyaan Ketersediaan Buku</option>
+                    <option value="Pertanyaan Buku">Pertanyaan Ketersediaan Naskah</option>
                     <option value="Status Pesanan">Status Pemesanan & Pengiriman</option>
-                    <option value="Rekomendasi Judul">Rekomendasi Judul / Request Buku</option>
-                    <option value="Kerjasama">Kerjasama Penerbit & Bisnis</option>
-                    <option value="Kritik & Saran">Kritik & Saran Layanan</option>
-                    <option value="Lainnya">Lainnya</option>
+                    <option value="Rekomendasi Judul">Rekomendasi Judul / Request Naskah</option>
+                    <option value="Kerjasama">Kerjasama Penerbit & Penulis</option>
+                    <option value="Kritik & Saran">Kritik & Masukan Pelayanan</option>
+                    <option value="Lainnya">Pertanyaan Lainnya</option>
                   </select>
                 </div>
 
                 <div className="col-12">
-                  <label className="form-label fw-semibold">Isi Pesan</label>
+                  <label className="form-label small fw-semibold text-secondary">
+                    Isi Pesan Surat <span className="text-danger">*</span>
+                  </label>
                   <textarea
                     className="form-control"
                     rows="5"
-                    placeholder="Tuliskan pertanyaan atau pesan Anda secara lengkap di sini..."
+                    placeholder="Tuliskan pertanyaan, masukan, atau pesan Anda secara lengkap..."
                     required
                     value={contactForm.message}
                     onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
                   ></textarea>
                 </div>
 
-                <div className="col-12">
+                <div className="col-12 pt-2">
                   <button
                     type="submit"
-                    className="btn btn-primary px-4 py-2 fw-semibold d-inline-flex align-items-center gap-2"
+                    className="btn btn-primary px-4 py-2 rounded-pill fw-semibold d-inline-flex align-items-center gap-2"
                     disabled={submitting}
                   >
                     {submitting ? (
                       <>
                         <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        <span>Mengirim Pesan...</span>
+                        <span>Mengirimkan Surat...</span>
                       </>
                     ) : (
                       <>
                         <i className="fa-solid fa-paper-plane"></i>
-                        <span>Kirim Pesan Sekarang</span>
+                        <span>Kirim Surat Sekarang</span>
                       </>
                     )}
                   </button>

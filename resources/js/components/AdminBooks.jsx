@@ -36,7 +36,7 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
       const res = await fetch('/api/books')
       if (res.ok) {
         const data = await res.json()
-        setBookList(data)
+        setBookList(Array.isArray(data) ? data : [])
         if (onStatsChange) onStatsChange(data.length)
       }
     } catch (err) {
@@ -81,9 +81,7 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
           description: formData.description.trim(),
           price: Number(formData.price) || 85000,
           stock: Number(formData.stock) || 10,
-          cover_photo:
-            formData.cover_photo.trim() ||
-            'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=700&auto=format&fit=crop',
+          cover_photo: formData.cover_photo.trim(),
           genre_id: Number(formData.genre_id) || defaultGenre,
           author_id: Number(formData.author_id) || defaultAuthor,
         }),
@@ -103,10 +101,11 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
         setShowCreateForm(false)
         fetchBooks()
       } else {
-        triggerAlert(result.message || 'Gagal menambahkan buku.', 'danger')
+        alert(result.message || 'Gagal menyimpan buku ke database.')
       }
-    } catch {
-      triggerAlert('Terjadi kesalahan koneksi saat menambahkan buku.', 'danger')
+    } catch (err) {
+      console.error('Error create book:', err)
+      alert('Terjadi kesalahan jaringan saat menyimpan data buku.')
     } finally {
       setIsSubmitting(false)
     }
@@ -115,10 +114,7 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
   // Handle Submit Update Buku
   const handleUpdateSubmit = async (e) => {
     e.preventDefault()
-    if (!bookToEdit || !bookToEdit.description.trim()) {
-      alert('Judul / Deskripsi buku wajib diisi!')
-      return
-    }
+    if (!bookToEdit) return
 
     setIsSubmitting(true)
     try {
@@ -130,32 +126,33 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
           'X-Role': 'admin',
         },
         body: JSON.stringify({
-          description: bookToEdit.description.trim(),
-          price: Number(bookToEdit.price) || 0,
-          stock: Number(bookToEdit.stock) || 0,
+          description: bookToEdit.description,
+          price: Number(bookToEdit.price),
+          stock: Number(bookToEdit.stock),
           cover_photo: bookToEdit.cover_photo || '',
-          genre_id: Number(bookToEdit.genre_id) || (genreList[0]?.id || 1),
-          author_id: Number(bookToEdit.author_id) || (authorList[0]?.id || 1),
+          genre_id: Number(bookToEdit.genre_id),
+          author_id: Number(bookToEdit.author_id),
         }),
       })
 
       const result = await response.json().catch(() => ({}))
       if (response.ok) {
-        triggerAlert(`Buku "${bookToEdit.description.trim()}" berhasil diperbarui!`)
+        triggerAlert(`Perubahan pada buku #${bookToEdit.id} berhasil disimpan!`)
         setBookToEdit(null)
         fetchBooks()
       } else {
-        triggerAlert(result.message || 'Gagal memperbarui buku.', 'danger')
+        alert(result.message || 'Gagal memperbarui data buku.')
       }
-    } catch {
-      triggerAlert('Terjadi kesalahan saat memperbarui buku.', 'danger')
+    } catch (err) {
+      console.error('Error update book:', err)
+      alert('Terjadi kesalahan jaringan saat update buku.')
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  // Handle Confirm Delete Buku
-  const confirmDelete = async () => {
+  // Handle Hapus Buku
+  const handleDeleteBook = async () => {
     if (!bookToDelete) return
 
     setIsSubmitting(true)
@@ -163,22 +160,22 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
       const response = await fetch(`/api/books/${bookToDelete.id}`, {
         method: 'DELETE',
         headers: {
-          'Content-Type': 'application/json',
           'Accept': 'application/json',
           'X-Role': 'admin',
         },
       })
 
-      const result = await response.json().catch(() => ({}))
       if (response.ok) {
-        triggerAlert(`Buku "${bookToDelete.description}" berhasil dihapus dari database!`)
-        setBookList((prev) => prev.filter((b) => b.id !== bookToDelete.id))
+        triggerAlert(`Buku #${bookToDelete.id} berhasil dihapus dari sistem!`)
         setBookToDelete(null)
+        fetchBooks()
       } else {
-        triggerAlert(result.message || 'Gagal menghapus buku.', 'danger')
+        const result = await response.json().catch(() => ({}))
+        alert(result.message || 'Gagal menghapus buku.')
       }
-    } catch {
-      triggerAlert('Terjadi kesalahan saat menghapus buku.', 'danger')
+    } catch (err) {
+      console.error('Error delete book:', err)
+      alert('Terjadi kesalahan jaringan saat menghapus data buku.')
     } finally {
       setIsSubmitting(false)
     }
@@ -186,12 +183,11 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
 
   // Format Rupiah
   const formatRupiah = (val) => {
-    const num = Number(val) || 0
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
       maximumFractionDigits: 0,
-    }).format(num)
+    }).format(Number(val) || 0)
   }
 
   // Filter Buku
@@ -211,43 +207,58 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
       {/* Alert Notifikasi */}
       {alert && (
         <div
-          className={`alert alert-${alert.type} alert-dismissible fade show shadow-sm mb-4`}
+          className={`alert alert-${alert.type} alert-dismissible fade show shadow-sm mb-4 d-flex align-items-center`}
           role="alert"
+          style={{
+            backgroundColor: alert.type === 'success' ? 'var(--accent-secondary-light)' : '#FDF0EE',
+            borderColor: alert.type === 'success' ? 'rgba(61, 90, 69, 0.3)' : 'rgba(185, 56, 34, 0.3)',
+            color: alert.type === 'success' ? 'var(--accent-secondary)' : '#B93822',
+            borderRadius: '10px',
+          }}
         >
           <i
             className={`fa-solid ${
               alert.type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'
-            } me-2`}
+            } me-2 fs-5`}
           ></i>
-          {alert.text}
+          <div>{alert.text}</div>
           <button
             type="button"
-            className="btn-close"
+            className="btn-close ms-auto"
             onClick={() => setAlert(null)}
           ></button>
         </div>
       )}
 
       {/* Action Bar: Search & Tombol Tambah */}
-      <div className="card border-0 shadow-sm rounded-3 bg-white p-3 mb-4">
+      <div className="card p-3 mb-4">
         <div className="row g-3 align-items-center justify-content-between">
           <div className="col-12 col-md-6 col-lg-5">
             <div className="input-group">
-              <span className="input-group-text bg-white border-end-0 text-muted">
+              <span
+                className="input-group-text border-end-0"
+                style={{
+                  backgroundColor: 'var(--bg-surface)',
+                  borderColor: 'var(--border-subtle)',
+                  color: 'var(--text-secondary)',
+                }}
+              >
                 <i className="fa-solid fa-magnifying-glass"></i>
               </span>
               <input
                 type="text"
                 className="form-control border-start-0 ps-0 shadow-none"
-                placeholder="Cari judul, penulis, kategori, atau ID..."
+                placeholder="Cari judul naskah, nama penulis, genre, atau #ID..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                style={{ backgroundColor: 'var(--bg-surface)' }}
               />
               {searchQuery && (
                 <button
                   className="btn btn-outline-secondary border-start-0"
                   type="button"
                   onClick={() => setSearchQuery('')}
+                  style={{ backgroundColor: 'var(--bg-surface)' }}
                 >
                   <i className="fa-solid fa-xmark"></i>
                 </button>
@@ -268,7 +279,7 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
                   showCreateForm ? 'fa-xmark' : 'fa-plus'
                 } me-2`}
               ></i>
-              {showCreateForm ? 'Tutup Formulir' : 'Tambah Buku Baru'}
+              {showCreateForm ? 'Tutup Formulir' : 'Tambah Judul Buku'}
             </button>
           </div>
         </div>
@@ -276,188 +287,215 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
 
       {/* FORMULIR CREATE BUKU */}
       {showCreateForm && (
-        <div className="card border-0 shadow-sm rounded-3 bg-white mb-4 p-2">
-          <div className="card-body p-4">
-            <div className="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom">
-              <div>
-                <h5 className="mb-1 fw-bold text-dark">
-                  <i className="fa-solid fa-square-plus text-primary me-2"></i>
-                  Formulir Tambah Buku (Database MySQL)
-                </h5>
-                <p className="text-secondary small mb-0">
-                  Data buku baru akan langsung tersimpan ke tabel <code>books</code>.
-                </p>
-              </div>
-              <button
-                type="button"
-                className="btn-close"
-                onClick={() => setShowCreateForm(false)}
-              ></button>
+        <div className="card mb-4 p-3 p-md-4">
+          <div className="d-flex justify-content-between align-items-center pb-3 mb-4 border-bottom" style={{ borderColor: 'var(--border-subtle) !important' }}>
+            <div>
+              <h5 className="font-serif fw-bold mb-1" style={{ color: 'var(--text-primary)' }}>
+                <i className="fa-solid fa-square-plus me-2" style={{ color: 'var(--accent-primary)' }}></i>
+                Registrasi Naskah / Buku Baru
+              </h5>
+              <p className="small mb-0 text-muted">
+                Data buku baru akan langsung tersimpan ke tabel <code>books</code> di database MySQL.
+              </p>
             </div>
+            <button
+              type="button"
+              className="btn-close"
+              onClick={() => setShowCreateForm(false)}
+            ></button>
+          </div>
 
-            <form onSubmit={handleCreateSubmit}>
-              <div className="row g-3">
-                <div className="col-md-12">
-                  <label className="form-label fw-semibold small text-secondary">
-                    Judul Buku / Deskripsi Lengkap <span className="text-danger">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="description"
-                    className="form-control"
-                    placeholder="Contoh: Bumi Manusia - Novel Sejarah"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
+          <form onSubmit={handleCreateSubmit}>
+            <div className="row g-3">
+              <div className="col-md-8">
+                <div className="row g-3">
+                  <div className="col-12">
+                    <label className="form-label fw-semibold small text-secondary">
+                      Judul Buku / Deskripsi Naskah <span className="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="description"
+                      className="form-control"
+                      placeholder="Contoh: Laut Bercerita"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
 
-                <div className="col-md-6">
-                  <label className="form-label fw-semibold small text-secondary">
-                    Penulis (Author) <span className="text-danger">*</span>
-                  </label>
-                  <select
-                    name="author_id"
-                    className="form-select"
-                    value={formData.author_id}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <option value="">-- Pilih Penulis dari DB --</option>
-                    {authorList.map((a) => (
-                      <option key={a.id} value={a.id}>
-                        {a.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                  <div className="col-md-6">
+                    <label className="form-label fw-semibold small text-secondary">
+                      Kategori (Genre)
+                    </label>
+                    <select
+                      name="genre_id"
+                      className="form-select"
+                      value={formData.genre_id}
+                      onChange={handleInputChange}
+                    >
+                      <option value="">-- Pilih Genre --</option>
+                      {genreList.map((g) => (
+                        <option key={g.id} value={g.id}>
+                          {g.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                <div className="col-md-6">
-                  <label className="form-label fw-semibold small text-secondary">
-                    Kategori (Genre) <span className="text-danger">*</span>
-                  </label>
-                  <select
-                    name="genre_id"
-                    className="form-select"
-                    value={formData.genre_id}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <option value="">-- Pilih Kategori dari DB --</option>
-                    {genreList.map((g) => (
-                      <option key={g.id} value={g.id}>
-                        {g.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                  <div className="col-md-6">
+                    <label className="form-label fw-semibold small text-secondary">
+                      Penulis (Author)
+                    </label>
+                    <select
+                      name="author_id"
+                      className="form-select"
+                      value={formData.author_id}
+                      onChange={handleInputChange}
+                    >
+                      <option value="">-- Pilih Penulis --</option>
+                      {authorList.map((a) => (
+                        <option key={a.id} value={a.id}>
+                          {a.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                <div className="col-md-6">
-                  <label className="form-label fw-semibold small text-secondary">
-                    Harga (Rp) <span className="text-danger">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    name="price"
-                    className="form-control"
-                    placeholder="Contoh: 95000"
-                    value={formData.price}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
+                  <div className="col-md-6">
+                    <label className="form-label fw-semibold small text-secondary">
+                      Harga Jual Satuan (IDR)
+                    </label>
+                    <input
+                      type="number"
+                      name="price"
+                      className="form-control"
+                      placeholder="85000"
+                      value={formData.price}
+                      onChange={handleInputChange}
+                      min="1000"
+                      required
+                    />
+                  </div>
 
-                <div className="col-md-6">
-                  <label className="form-label fw-semibold small text-secondary">
-                    Stok Buku <span className="text-danger">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    name="stock"
-                    className="form-control"
-                    placeholder="Contoh: 20"
-                    value={formData.stock}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
+                  <div className="col-md-6">
+                    <label className="form-label fw-semibold small text-secondary">
+                      Jumlah Stok Gudang
+                    </label>
+                    <input
+                      type="number"
+                      name="stock"
+                      className="form-control"
+                      placeholder="10"
+                      value={formData.stock}
+                      onChange={handleInputChange}
+                      min="0"
+                      required
+                    />
+                  </div>
 
-                <div className="col-md-12">
-                  <label className="form-label fw-semibold small text-secondary">
-                    URL Foto Sampul (Cover Photo)
-                  </label>
-                  <input
-                    type="text"
-                    name="cover_photo"
-                    className="form-control"
-                    placeholder="Contoh: https://... atau biarkan kosong untuk sampul default"
-                    value={formData.cover_photo}
-                    onChange={handleInputChange}
-                  />
-                </div>
-
-                <div className="col-12 d-flex justify-content-end gap-2 pt-2 border-top">
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary rounded-pill px-4"
-                    onClick={() => setShowCreateForm(false)}
-                  >
-                    Batal
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn btn-primary rounded-pill px-4 fw-semibold"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2"></span>
-                        Menyimpan...
-                      </>
-                    ) : (
-                      <>
-                        <i className="fa-solid fa-save me-1"></i> Simpan Buku ke DB
-                      </>
-                    )}
-                  </button>
+                  <div className="col-12">
+                    <label className="form-label fw-semibold small text-secondary">
+                      URL Foto Sampul (Cover Photo)
+                    </label>
+                    <input
+                      type="text"
+                      name="cover_photo"
+                      className="form-control"
+                      placeholder="https://images.unsplash.com/..."
+                      value={formData.cover_photo}
+                      onChange={handleInputChange}
+                    />
+                  </div>
                 </div>
               </div>
-            </form>
-          </div>
+
+              {/* Cover Preview Box */}
+              <div className="col-md-4 d-flex flex-column align-items-center justify-content-center p-3 rounded" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
+                <span className="small text-muted fw-semibold mb-2">Pratinjau Sampul</span>
+                <div className="image-preview-frame">
+                  {formData.cover_photo ? (
+                    <img
+                      src={formData.cover_photo}
+                      alt="Pratinjau"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null
+                        e.currentTarget.src =
+                          'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=700&auto=format&fit=crop'
+                      }}
+                    />
+                  ) : (
+                    <i className="fa-solid fa-book-open text-muted fs-3"></i>
+                  )}
+                </div>
+                <small className="text-muted mt-2 text-center" style={{ fontSize: '0.75rem' }}>
+                  Proporsi fisik buku 2:3
+                </small>
+              </div>
+
+              <div className="col-12 d-flex justify-content-end gap-2 pt-3 border-top" style={{ borderColor: 'var(--border-subtle) !important' }}>
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary px-4 rounded-pill"
+                  onClick={() => setShowCreateForm(false)}
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary px-4 rounded-pill fw-semibold"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2"></span>
+                      Menyimpan...
+                    </>
+                  ) : (
+                    <>
+                      <i className="fa-solid fa-save me-1"></i> Simpan ke Katalog
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
       )}
 
       {/* TABEL DAFTAR BUKU */}
-      <div className="card border-0 shadow-sm rounded-3 bg-white overflow-hidden">
-        <div className="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-          <h6 className="mb-0 fw-bold text-dark">
-            <i className="fa-solid fa-book text-primary me-2"></i>
-            Daftar Seluruh Buku ({filteredBooks.length})
-          </h6>
-          <span className="badge bg-light text-secondary border">
-            Tersinkronisasi MySQL
+      <div className="card overflow-hidden">
+        <div className="card-header py-3 px-4 d-flex justify-content-between align-items-center">
+          <div className="d-flex align-items-center gap-2">
+            <i className="fa-solid fa-book" style={{ color: 'var(--accent-primary)' }}></i>
+            <h6 className="font-serif fw-bold mb-0" style={{ color: 'var(--text-primary)', fontSize: '1.05rem' }}>
+              Daftar Seluruh Naskah Buku ({filteredBooks.length})
+            </h6>
+          </div>
+          <span className="badge rounded-pill" style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}>
+            MySQL Database
           </span>
         </div>
 
         <div className="table-responsive">
           <table className="table table-hover align-middle mb-0">
-            <thead className="table-light text-secondary small">
+            <thead>
               <tr>
                 <th style={{ width: '60px' }} className="text-center">#ID</th>
-                <th style={{ width: '80px' }}>Sampul</th>
-                <th>Judul & Deskripsi</th>
+                <th style={{ width: '70px' }}>Sampul</th>
+                <th>Judul & Naskah</th>
                 <th>Kategori (Genre)</th>
                 <th>Penulis (Author)</th>
                 <th>Harga</th>
                 <th className="text-center">Stok</th>
-                <th style={{ width: '130px' }} className="text-center">Aksi</th>
+                <th style={{ width: '110px' }} className="text-center">Aksi</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="8" className="text-center py-5">
-                    <div className="spinner-border text-primary spinner-border-sm me-2"></div>
+                  <td colSpan="8" className="text-center py-5 text-muted">
+                    <div className="spinner-border text-secondary spinner-border-sm me-2"></div>
                     Memuat data buku dari database...
                   </td>
                 </tr>
@@ -474,53 +512,76 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
                         #{book.id}
                       </td>
                       <td>
-                        <img
-                          src={img}
-                          alt={book.description}
-                          className="rounded shadow-sm"
-                          style={{ width: '48px', height: '64px', objectFit: 'cover' }}
-                          onError={(e) => {
-                            e.currentTarget.onerror = null
-                            e.currentTarget.src =
-                              'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=700&auto=format&fit=crop'
+                        <div
+                          className="rounded overflow-hidden shadow-sm flex-shrink-0"
+                          style={{
+                            width: '42px',
+                            height: '60px',
+                            backgroundColor: 'var(--bg-secondary)',
                           }}
-                        />
+                        >
+                          <img
+                            src={img}
+                            alt={book.description}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            onError={(e) => {
+                              e.currentTarget.onerror = null
+                              e.currentTarget.src =
+                                'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=700&auto=format&fit=crop'
+                            }}
+                          />
+                        </div>
                       </td>
                       <td>
-                        <div className="fw-bold text-dark">{book.description}</div>
+                        <div className="font-serif fw-bold text-dark" style={{ fontSize: '0.98rem' }}>
+                          {book.description}
+                        </div>
                         <small className="text-muted">
-                          ID: {book.id} | Ditambahkan ke sistem
+                          Entri Sistem ID #{book.id}
                         </small>
                       </td>
                       <td>
-                        <span className="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1">
+                        <span className="book-card-genre">
                           {book.genre?.name || 'Tanpa Kategori'}
                         </span>
                       </td>
                       <td>
-                        <div className="fw-medium text-dark">
-                          <i className="fa-solid fa-user-pen text-secondary me-1 small"></i>
+                        <div className="small fw-semibold" style={{ color: 'var(--text-secondary)' }}>
+                          <i className="fa-regular fa-user me-1 text-muted"></i>
                           {book.author?.name || 'Penulis Tidak Diketahui'}
                         </div>
                       </td>
-                      <td className="fw-bold text-primary">
+                      <td className="book-price-tag">
                         {formatRupiah(book.price)}
                       </td>
                       <td className="text-center">
                         <span
-                          className={`badge ${
-                            book.stock > 5 ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning'
-                          } px-2 py-1 rounded-pill`}
+                          className="badge rounded-pill"
+                          style={{
+                            backgroundColor:
+                              book.stock > 5
+                                ? 'var(--accent-secondary-light)'
+                                : '#FAF4E5',
+                            color:
+                              book.stock > 5
+                                ? 'var(--accent-secondary)'
+                                : '#8C6D1F',
+                            border:
+                              book.stock > 5
+                                ? '1px solid rgba(61, 90, 69, 0.25)'
+                                : '1px solid rgba(184, 134, 11, 0.25)',
+                            fontSize: '0.75rem',
+                          }}
                         >
                           {book.stock} pcs
                         </span>
                       </td>
                       <td className="text-center">
-                        <div className="btn-group btn-group-sm">
+                        <div className="d-flex justify-content-center gap-1">
                           <button
                             type="button"
-                            className="btn btn-outline-warning"
-                            title="Edit Buku"
+                            className="btn-action-icon btn-action-edit"
+                            title="Edit Naskah Buku"
                             onClick={() =>
                               setBookToEdit({
                                 ...book,
@@ -529,15 +590,15 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
                               })
                             }
                           >
-                            <i className="fa-solid fa-pen-to-square"></i>
+                            <i className="fa-regular fa-pen-to-square"></i>
                           </button>
                           <button
                             type="button"
-                            className="btn btn-outline-danger"
+                            className="btn-action-icon btn-action-delete"
                             title="Hapus Buku"
                             onClick={() => setBookToDelete(book)}
                           >
-                            <i className="fa-solid fa-trash-can"></i>
+                            <i className="fa-regular fa-trash-can"></i>
                           </button>
                         </div>
                       </td>
@@ -548,7 +609,7 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
                 <tr>
                   <td colSpan="8" className="text-center py-5 text-muted">
                     <i className="fa-solid fa-book-open fs-2 mb-2 d-block"></i>
-                    Belum ada data buku yang sesuai dengan pencarian.
+                    Belum ada data buku yang sesuai dengan kriteria pencarian.
                   </td>
                 </tr>
               )}
@@ -562,14 +623,14 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
         <div
           className="modal fade show d-block"
           tabIndex="-1"
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}
+          style={{ backgroundColor: 'rgba(35, 31, 32, 0.65)', zIndex: 1050 }}
         >
           <div className="modal-dialog modal-dialog-centered modal-lg">
-            <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-              <div className="modal-header bg-warning-subtle border-bottom py-3">
-                <h5 className="modal-title fw-bold text-dark">
-                  <i className="fa-solid fa-pen-to-square text-warning me-2"></i>
-                  Edit Data Buku (#{bookToEdit.id})
+            <div className="modal-content overflow-hidden">
+              <div className="modal-header py-3 px-4">
+                <h5 className="modal-title font-serif fw-bold" style={{ color: 'var(--text-primary)' }}>
+                  <i className="fa-regular fa-pen-to-square me-2" style={{ color: 'var(--accent-primary)' }}></i>
+                  Perbarui Naskah Buku (#{bookToEdit.id})
                 </h5>
                 <button
                   type="button"
@@ -581,116 +642,144 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
               <form onSubmit={handleUpdateSubmit}>
                 <div className="modal-body p-4">
                   <div className="row g-3">
-                    <div className="col-12">
-                      <label className="form-label fw-semibold small text-secondary">
-                        Judul / Deskripsi Buku <span className="text-danger">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={bookToEdit.description}
-                        onChange={(e) =>
-                          setBookToEdit({ ...bookToEdit, description: e.target.value })
-                        }
-                        required
-                      />
+                    <div className="col-md-8">
+                      <div className="row g-3">
+                        <div className="col-12">
+                          <label className="form-label fw-semibold small text-secondary">
+                            Judul / Deskripsi Buku <span className="text-danger">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={bookToEdit.description}
+                            onChange={(e) =>
+                              setBookToEdit({ ...bookToEdit, description: e.target.value })
+                            }
+                            required
+                          />
+                        </div>
+
+                        <div className="col-md-6">
+                          <label className="form-label fw-semibold small text-secondary">
+                            Penulis (Author)
+                          </label>
+                          <select
+                            className="form-select"
+                            value={bookToEdit.author_id}
+                            onChange={(e) =>
+                              setBookToEdit({ ...bookToEdit, author_id: e.target.value })
+                            }
+                          >
+                            {authorList.map((a) => (
+                              <option key={a.id} value={a.id}>
+                                {a.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="col-md-6">
+                          <label className="form-label fw-semibold small text-secondary">
+                            Kategori (Genre)
+                          </label>
+                          <select
+                            className="form-select"
+                            value={bookToEdit.genre_id}
+                            onChange={(e) =>
+                              setBookToEdit({ ...bookToEdit, genre_id: e.target.value })
+                            }
+                          >
+                            {genreList.map((g) => (
+                              <option key={g.id} value={g.id}>
+                                {g.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="col-md-6">
+                          <label className="form-label fw-semibold small text-secondary">
+                            Harga Satuan (IDR)
+                          </label>
+                          <input
+                            type="number"
+                            className="form-control"
+                            value={bookToEdit.price}
+                            onChange={(e) =>
+                              setBookToEdit({ ...bookToEdit, price: e.target.value })
+                            }
+                            required
+                          />
+                        </div>
+
+                        <div className="col-md-6">
+                          <label className="form-label fw-semibold small text-secondary">
+                            Stok Gudang
+                          </label>
+                          <input
+                            type="number"
+                            className="form-control"
+                            value={bookToEdit.stock}
+                            onChange={(e) =>
+                              setBookToEdit({ ...bookToEdit, stock: e.target.value })
+                            }
+                            required
+                          />
+                        </div>
+
+                        <div className="col-12">
+                          <label className="form-label fw-semibold small text-secondary">
+                            URL Sampul Buku
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={bookToEdit.cover_photo || ''}
+                            onChange={(e) =>
+                              setBookToEdit({ ...bookToEdit, cover_photo: e.target.value })
+                            }
+                          />
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold small text-secondary">
-                        Penulis (Author)
-                      </label>
-                      <select
-                        className="form-select"
-                        value={bookToEdit.author_id}
-                        onChange={(e) =>
-                          setBookToEdit({ ...bookToEdit, author_id: e.target.value })
-                        }
-                      >
-                        {authorList.map((a) => (
-                          <option key={a.id} value={a.id}>
-                            {a.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold small text-secondary">
-                        Kategori (Genre)
-                      </label>
-                      <select
-                        className="form-select"
-                        value={bookToEdit.genre_id}
-                        onChange={(e) =>
-                          setBookToEdit({ ...bookToEdit, genre_id: e.target.value })
-                        }
-                      >
-                        {genreList.map((g) => (
-                          <option key={g.id} value={g.id}>
-                            {g.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold small text-secondary">
-                        Harga (Rp)
-                      </label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={bookToEdit.price}
-                        onChange={(e) =>
-                          setBookToEdit({ ...bookToEdit, price: e.target.value })
-                        }
-                        required
-                      />
-                    </div>
-
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold small text-secondary">
-                        Stok Buku
-                      </label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={bookToEdit.stock}
-                        onChange={(e) =>
-                          setBookToEdit({ ...bookToEdit, stock: e.target.value })
-                        }
-                        required
-                      />
-                    </div>
-
-                    <div className="col-12">
-                      <label className="form-label fw-semibold small text-secondary">
-                        URL Foto Sampul (Cover Photo)
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={bookToEdit.cover_photo || ''}
-                        onChange={(e) =>
-                          setBookToEdit({ ...bookToEdit, cover_photo: e.target.value })
-                        }
-                      />
+                    {/* Image Preview Box */}
+                    <div className="col-md-4 d-flex flex-column align-items-center justify-content-center p-3 rounded" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
+                      <span className="small text-muted fw-semibold mb-2">Pratinjau Sampul</span>
+                      <div className="image-preview-frame">
+                        {bookToEdit.cover_photo ? (
+                          <img
+                            src={bookToEdit.cover_photo}
+                            alt="Pratinjau"
+                            onError={(e) => {
+                              e.currentTarget.onerror = null
+                              e.currentTarget.src =
+                                'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=700&auto=format&fit=crop'
+                            }}
+                          />
+                        ) : (
+                          <i className="fa-solid fa-book-open text-muted fs-3"></i>
+                        )}
+                      </div>
+                      <small className="text-muted mt-2 text-center" style={{ fontSize: '0.75rem' }}>
+                        Proporsi fisik 2:3
+                      </small>
                     </div>
                   </div>
                 </div>
 
-                <div className="modal-footer bg-light border-top py-3">
+                <div className="modal-footer py-3 px-4">
                   <button
                     type="button"
                     className="btn btn-outline-secondary rounded-pill px-4"
                     onClick={() => setBookToEdit(null)}
+                    disabled={isSubmitting}
                   >
                     Batal
                   </button>
                   <button
                     type="submit"
-                    className="btn btn-warning rounded-pill px-4 fw-semibold text-dark"
+                    className="btn btn-primary rounded-pill px-4 fw-semibold"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
@@ -700,7 +789,8 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
                       </>
                     ) : (
                       <>
-                        <i className="fa-solid fa-save me-1"></i> Simpan Perubahan
+                        <i className="fa-solid fa-check me-2"></i>
+                        Simpan Perubahan
                       </>
                     )}
                   </button>
@@ -716,37 +806,41 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
         <div
           className="modal fade show d-block"
           tabIndex="-1"
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}
+          style={{ backgroundColor: 'rgba(35, 31, 32, 0.65)', zIndex: 1050 }}
         >
           <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-              <div className="modal-header bg-danger-subtle text-danger border-bottom py-3">
-                <h5 className="modal-title fw-bold">
+            <div className="modal-content overflow-hidden">
+              <div className="modal-header py-3 px-4">
+                <h5 className="modal-title font-serif fw-bold" style={{ color: '#B93822' }}>
                   <i className="fa-solid fa-triangle-exclamation me-2"></i>
-                  Konfirmasi Hapus Buku
+                  Konfirmasi Penghapusan Buku
                 </h5>
                 <button
                   type="button"
                   className="btn-close"
                   onClick={() => setBookToDelete(null)}
+                  disabled={isSubmitting}
                 ></button>
               </div>
 
-              <div className="modal-body p-4 text-center">
-                <div
-                  className="rounded-circle bg-danger-subtle text-danger d-inline-flex align-items-center justify-content-center mb-3"
-                  style={{ width: '64px', height: '64px', fontSize: '1.8rem' }}
-                >
-                  <i className="fa-solid fa-trash-can"></i>
-                </div>
-                <h5 className="fw-bold text-dark mb-2">Hapus Buku Ini?</h5>
-                <p className="text-secondary mb-0">
-                  Apakah Anda yakin ingin menghapus buku <strong>&quot;{bookToDelete.description}&quot;</strong>?
-                  Data akan dihapus permanen dari database.
+              <div className="modal-body p-4">
+                <p className="mb-2" style={{ color: 'var(--text-primary)' }}>
+                  Apakah Anda yakin ingin menghapus buku berikut dari sistem?
                 </p>
+                <div className="p-3 rounded mb-3" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
+                  <h6 className="font-serif fw-bold mb-1" style={{ color: 'var(--text-primary)' }}>
+                    {bookToDelete.description}
+                  </h6>
+                  <small className="text-muted d-block">
+                    ID: #{bookToDelete.id} | Penulis: {bookToDelete.author?.name || '-'} | Genre: {bookToDelete.genre?.name || '-'}
+                  </small>
+                </div>
+                <small className="text-danger d-block">
+                  * Data yang dihapus tidak dapat dipulihkan kembali dari database.
+                </small>
               </div>
 
-              <div className="modal-footer bg-light border-top py-3">
+              <div className="modal-footer py-3 px-4">
                 <button
                   type="button"
                   className="btn btn-outline-secondary rounded-pill px-4"
@@ -758,8 +852,9 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
                 <button
                   type="button"
                   className="btn btn-danger rounded-pill px-4 fw-semibold"
-                  onClick={confirmDelete}
+                  onClick={handleDeleteBook}
                   disabled={isSubmitting}
+                  style={{ backgroundColor: '#B93822', borderColor: '#B93822' }}
                 >
                   {isSubmitting ? (
                     <>
@@ -768,7 +863,8 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
                     </>
                   ) : (
                     <>
-                      <i className="fa-solid fa-trash-can me-1"></i> Ya, Hapus Buku
+                      <i className="fa-solid fa-trash-can me-2"></i>
+                      Hapus Permanen
                     </>
                   )}
                 </button>

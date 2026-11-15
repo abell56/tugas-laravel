@@ -2,58 +2,108 @@ import { Link } from 'react-router'
 
 function Footer() {
   return (
-    <div className="container">
-      <footer className="py-4 my-4 border-top">
-        <div className="d-flex flex-wrap justify-content-between align-items-center pb-3 mb-3 border-bottom">
-          <div className="d-flex align-items-center gap-2 mb-3 mb-md-0">
-            <i
-              className="fa-solid fa-book-open fa-xl text-primary"
-            ></i>
-            <span className="fw-bold fs-5 text-dark">
-              book<span className="text-primary">store</span>
-            </span>
-            <span className="text-muted ms-2 small d-none d-md-inline">| Rumah Buku & Inspirasi Terpercaya</span>
+    <footer className="custom-footer mt-auto pt-5 pb-4">
+      <div className="container">
+        <div className="row g-4 justify-content-between align-items-start pb-4 border-bottom" style={{ borderColor: 'var(--border-subtle) !important' }}>
+          <div className="col-lg-5">
+            <div className="d-flex align-items-center gap-2 mb-3">
+              <div className="brand-mark" style={{ width: '32px', height: '32px', fontSize: '1rem' }}>
+                <i className="fa-solid fa-book-bookmark"></i>
+              </div>
+              <span className="brand-wordmark fs-4">
+                book<span>store</span>
+              </span>
+            </div>
+            <p className="small mb-3" style={{ color: 'var(--text-secondary)', maxWidth: '420px', lineHeight: '1.7' }}>
+              Kurasi karya literasi pilihan, menghubungkan pembaca dengan pemikiran mendalam dari penulis terkemuka. Setiap eksemplar dijamin keasliannya dan dikemas dengan penuh perhatian.
+            </p>
+            <div className="d-flex align-items-center gap-2 text-muted small">
+              <span className="badge rounded-pill" style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', color: 'var(--accent-secondary)' }}>
+                <i className="fa-solid fa-seedling me-1"></i> Independen & Bergaransi
+              </span>
+              <span>•</span>
+              <span>Jakarta Selatan, Indonesia</span>
+            </div>
           </div>
 
-          <ul className="nav justify-content-center">
-            <li className="nav-item">
-              <Link to="/" className="nav-link px-2 text-body-secondary footer-link">
-                Home
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link to="/about" className="nav-link px-2 text-body-secondary footer-link">
-                About
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link to="/book" className="nav-link px-2 text-body-secondary footer-link">
-                Book
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link to="/team" className="nav-link px-2 text-body-secondary footer-link">
-                Team
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link to="/contact" className="nav-link px-2 text-body-secondary footer-link">
-                Contact
-              </Link>
-            </li>
-          </ul>
+          <div className="col-6 col-md-3 col-lg-2">
+            <h6 className="fw-bold mb-3" style={{ color: 'var(--text-primary)', fontSize: '0.88rem', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+              Navigasi
+            </h6>
+            <ul className="list-unstyled d-flex flex-column gap-2 mb-0 small">
+              <li>
+                <Link to="/" className="footer-link">Home</Link>
+              </li>
+              <li>
+                <Link to="/book" className="footer-link">Katalog Buku</Link>
+              </li>
+              <li>
+                <Link to="/cart" className="footer-link">Keranjang Belanja</Link>
+              </li>
+              <li>
+                <Link to="/about" className="footer-link">Tentang Kami</Link>
+              </li>
+            </ul>
+          </div>
+
+          <div className="col-6 col-md-3 col-lg-2">
+            <h6 className="fw-bold mb-3" style={{ color: 'var(--text-primary)', fontSize: '0.88rem', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+              Bantuan & Tim
+            </h6>
+            <ul className="list-unstyled d-flex flex-column gap-2 mb-0 small">
+              <li>
+                <Link to="/team" className="footer-link">Tim Pengelola</Link>
+              </li>
+              <li>
+                <Link to="/contact" className="footer-link">Hubungi Kami</Link>
+              </li>
+              <li>
+                <Link to="/profile" className="footer-link">Status Pesanan</Link>
+              </li>
+              <li>
+                <a href="#faq" className="footer-link">Panduan Pemesanan</a>
+              </li>
+            </ul>
+          </div>
+
+          <div className="col-md-6 col-lg-3">
+            <h6 className="fw-bold mb-3" style={{ color: 'var(--text-primary)', fontSize: '0.88rem', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+              Pembayaran Terpercaya
+            </h6>
+            <p className="small mb-3" style={{ color: 'var(--text-secondary)' }}>
+              Transaksi aman melalui gateway Midtrans Snap: QRIS, Transfer Bank, dan Bayar di Tempat.
+            </p>
+            <div className="d-flex flex-wrap gap-2">
+              <span className="badge" style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}>
+                QRIS
+              </span>
+              <span className="badge" style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}>
+                BCA Virtual
+              </span>
+              <span className="badge" style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}>
+                Mandiri
+              </span>
+              <span className="badge" style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}>
+                COD
+              </span>
+            </div>
+          </div>
         </div>
 
-        <div className="d-flex flex-wrap justify-content-between align-items-center text-body-secondary small">
-          <p className="mb-0">&copy; 2026 bookstore - NF Academy. All rights reserved.</p>
+        <div className="d-flex flex-wrap justify-content-between align-items-center pt-4 small" style={{ color: 'var(--text-secondary)' }}>
+          <p className="mb-0">
+            &copy; {new Date().getFullYear()} Bookstore — Rumah Literasi Digital. Hak cipta dilindungi.
+          </p>
           <div className="d-flex gap-3">
-            <a href="#" className="text-decoration-none text-muted">Syarat & Ketentuan</a>
+            <Link to="/about" className="footer-link">Tentang</Link>
             <span>•</span>
-            <a href="#" className="text-decoration-none text-muted">Kebijakan Privasi</a>
+            <Link to="/contact" className="footer-link">Bantuan</Link>
+            <span>•</span>
+            <span style={{ color: 'var(--text-muted)' }}>Jakarta, ID</span>
           </div>
         </div>
-      </footer>
-    </div>
+      </div>
+    </footer>
   )
 }
 

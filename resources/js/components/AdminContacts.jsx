@@ -86,61 +86,59 @@ function AdminContacts({ onStatsChange }) {
     })
   }
 
-  const getSubjectBadge = (subject) => {
-    const s = (subject || '').toLowerCase()
-    if (s.includes('ketersediaan') || s.includes('pertanyaan')) {
-      return 'bg-primary-subtle text-primary border border-primary-subtle'
-    }
-    if (s.includes('status') || s.includes('pesanan')) {
-      return 'bg-warning-subtle text-warning-emphasis border border-warning-subtle'
-    }
-    if (s.includes('rekomendasi')) {
-      return 'bg-info-subtle text-info-emphasis border border-info-subtle'
-    }
-    if (s.includes('kerjasama')) {
-      return 'bg-success-subtle text-success border border-success-subtle'
-    }
-    if (s.includes('kritik') || s.includes('saran')) {
-      return 'bg-danger-subtle text-danger border border-danger-subtle'
-    }
-    return 'bg-secondary-subtle text-secondary border border-secondary-subtle'
-  }
-
   return (
     <div>
       {/* Alert Notifikasi */}
       {alert && (
-        <div className={`alert alert-${alert.type} alert-dismissible fade show shadow-sm mb-4`} role="alert">
+        <div
+          className={`alert alert-${alert.type} alert-dismissible fade show shadow-sm mb-4 d-flex align-items-center`}
+          role="alert"
+          style={{
+            backgroundColor: alert.type === 'success' ? 'var(--accent-secondary-light)' : '#FDF0EE',
+            borderColor: alert.type === 'success' ? 'rgba(61, 90, 69, 0.3)' : 'rgba(185, 56, 34, 0.3)',
+            color: alert.type === 'success' ? 'var(--accent-secondary)' : '#B93822',
+            borderRadius: '10px',
+          }}
+        >
           <i
             className={`fa-solid ${
               alert.type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'
-            } me-2`}
+            } me-2 fs-5`}
           ></i>
-          {alert.message}
-          <button type="button" className="btn-close" onClick={() => setAlert(null)}></button>
+          <div>{alert.message}</div>
+          <button type="button" className="btn-close ms-auto" onClick={() => setAlert(null)}></button>
         </div>
       )}
 
       {/* Action Bar & Filter */}
-      <div className="card border-0 shadow-sm rounded-3 bg-white p-3 mb-4">
+      <div className="card p-3 mb-4">
         <div className="row g-3 align-items-center justify-content-between">
           <div className="col-12 col-md-6 col-lg-5">
             <div className="input-group">
-              <span className="input-group-text bg-white border-end-0 text-muted">
+              <span
+                className="input-group-text border-end-0"
+                style={{
+                  backgroundColor: 'var(--bg-surface)',
+                  borderColor: 'var(--border-subtle)',
+                  color: 'var(--text-secondary)',
+                }}
+              >
                 <i className="fa-solid fa-magnifying-glass"></i>
               </span>
               <input
                 type="text"
-                className="form-control border-start-0 ps-0"
-                placeholder="Cari nama pengirim, email, subjek, atau isi pesan..."
+                className="form-control border-start-0 ps-0 shadow-none"
+                placeholder="Cari pengirim, email, subjek, atau isi surat..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                style={{ backgroundColor: 'var(--bg-surface)' }}
               />
               {search && (
                 <button
                   className="btn btn-outline-secondary border-start-0"
                   type="button"
                   onClick={() => setSearch('')}
+                  style={{ backgroundColor: 'var(--bg-surface)' }}
                 >
                   <i className="fa-solid fa-xmark"></i>
                 </button>
@@ -149,16 +147,23 @@ function AdminContacts({ onStatsChange }) {
           </div>
           <div className="col-12 col-md-auto d-flex align-items-center gap-2">
             <button
-              className="btn btn-outline-secondary d-inline-flex align-items-center gap-2"
+              className="btn btn-outline-secondary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-2"
               onClick={fetchContacts}
               disabled={loading}
               title="Muat ulang pesan"
             >
               <i className={`fa-solid fa-rotate-right ${loading ? 'fa-spin' : ''}`}></i>
-              <span>Refresh</span>
+              <span>Perbarui</span>
             </button>
-            <span className="badge bg-primary rounded-pill px-3 py-2 fs-6">
-              Total: {contacts.length} Pesan
+            <span
+              className="badge rounded-pill px-3 py-2"
+              style={{
+                backgroundColor: 'var(--bg-secondary)',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border-subtle)',
+              }}
+            >
+              Total: {contacts.length} Surat Masuk
             </span>
           </div>
         </div>
@@ -166,63 +171,64 @@ function AdminContacts({ onStatsChange }) {
 
       {/* Konten Daftar Pesan */}
       {loading ? (
-        <div className="card border-0 shadow-sm rounded-3 p-5 text-center bg-white">
-          <div className="spinner-border text-primary mx-auto mb-3" role="status"></div>
-          <p className="text-secondary mb-0">Memuat pesan masuk dari database...</p>
+        <div className="card p-5 text-center">
+          <div className="spinner-border text-secondary mx-auto mb-3" role="status"></div>
+          <p className="small text-muted mb-0">Mengambil surat masuk pelanggan dari database...</p>
         </div>
       ) : filteredContacts.length === 0 ? (
-        <div className="card border-0 shadow-sm rounded-3 p-5 text-center bg-white">
+        <div className="card p-5 text-center">
           <div className="text-muted fs-1 mb-3">
             <i className="fa-regular fa-envelope-open"></i>
           </div>
-          <h5 className="fw-bold text-dark">
-            {search ? 'Tidak ada pesan yang cocok dengan pencarian' : 'Belum Ada Pesan Masuk'}
+          <h5 className="font-serif fw-bold text-dark">
+            {search ? 'Tidak ada surat yang cocok dengan pencarian' : 'Kotak Surat Masuk Masih Bersih'}
           </h5>
           <p className="text-secondary small mb-0">
             {search
-              ? `Kata kunci "${search}" tidak ditemukan pada daftar pesan.`
-              : 'Pesan yang dikirim oleh pelanggan melalui formulir Contact akan tersimpan dan tampil di sini.'}
+              ? `Kata kunci "${search}" tidak ditemukan pada arsip pesan.`
+              : 'Surat dan masukan yang dikirim oleh pembaca melalui formulir kontak akan tercatat di sini.'}
           </p>
         </div>
       ) : (
-        <div className="card border-0 shadow-sm rounded-3 bg-white overflow-hidden">
+        <div className="card overflow-hidden">
           <div className="table-responsive">
             <table className="table table-hover align-middle mb-0">
-              <thead className="table-light">
+              <thead>
                 <tr>
-                  <th scope="col" className="ps-3 text-center" style={{ width: '60px' }}>#</th>
-                  <th scope="col">Pengirim</th>
-                  <th scope="col">Kategori / Subjek</th>
-                  <th scope="col">Ringkasan Pesan</th>
-                  <th scope="col">Waktu Masuk</th>
-                  <th scope="col" className="text-end pe-3" style={{ width: '130px' }}>Aksi</th>
+                  <th scope="col" className="ps-4 text-center" style={{ width: '60px' }}>#</th>
+                  <th scope="col">Nama & Email Pengirim</th>
+                  <th scope="col">Subjek / Topik</th>
+                  <th scope="col">Ringkasan Surat</th>
+                  <th scope="col">Waktu</th>
+                  <th scope="col" className="text-center" style={{ width: '100px' }}>Aksi</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredContacts.map((c, index) => (
                   <tr key={c.id}>
-                    <td className="ps-3 text-center fw-semibold text-secondary">
+                    <td className="ps-4 text-center fw-semibold text-muted small">
                       {index + 1}
                     </td>
                     <td>
-                      <div className="fw-bold text-dark">{c.name}</div>
+                      <div className="fw-semibold text-dark">{c.name}</div>
                       <a
                         href={`mailto:${c.email}`}
-                        className="text-decoration-none small text-primary d-inline-flex align-items-center gap-1"
+                        className="text-decoration-none small d-inline-flex align-items-center gap-1"
+                        style={{ color: 'var(--accent-primary)' }}
                       >
-                        <i className="fa-regular fa-envelope"></i>
+                        <i className="fa-regular fa-envelope" style={{ fontSize: '0.78rem' }}></i>
                         {c.email}
                       </a>
                     </td>
                     <td>
-                      <span className={`badge px-2 py-1 rounded-pill ${getSubjectBadge(c.subject)}`}>
+                      <span className="book-card-genre">
                         {c.subject || 'Pertanyaan Umum'}
                       </span>
                     </td>
                     <td>
                       <p
-                        className="mb-0 text-secondary small text-truncate"
-                        style={{ maxWidth: '320px' }}
+                        className="mb-0 small text-secondary text-truncate"
+                        style={{ maxWidth: '280px' }}
                         title={c.message}
                       >
                         {c.message}
@@ -230,27 +236,26 @@ function AdminContacts({ onStatsChange }) {
                     </td>
                     <td>
                       <small className="text-muted">
-                        <i className="fa-regular fa-clock me-1"></i>
                         {formatDate(c.created_at)}
                       </small>
                     </td>
-                    <td className="text-end pe-3">
-                      <div className="btn-group btn-group-sm">
+                    <td className="text-center">
+                      <div className="d-flex justify-content-center gap-1">
                         <button
                           type="button"
-                          className="btn btn-outline-primary"
-                          title="Baca Pesan Lengkap"
+                          className="btn-action-icon btn-action-edit"
+                          title="Buka Surat Lengkap"
                           onClick={() => setSelectedContact(c)}
                         >
-                          <i className="fa-solid fa-eye"></i>
+                          <i className="fa-regular fa-eye"></i>
                         </button>
                         <button
                           type="button"
-                          className="btn btn-outline-danger"
-                          title="Hapus Pesan"
+                          className="btn-action-icon btn-action-delete"
+                          title="Hapus Surat"
                           onClick={() => setDeleteTarget(c)}
                         >
-                          <i className="fa-solid fa-trash-can"></i>
+                          <i className="fa-regular fa-trash-can"></i>
                         </button>
                       </div>
                     </td>
@@ -259,8 +264,8 @@ function AdminContacts({ onStatsChange }) {
               </tbody>
             </table>
           </div>
-          <div className="card-footer bg-white border-top-0 py-3 text-secondary small">
-            Menampilkan <strong>{filteredContacts.length}</strong> dari <strong>{contacts.length}</strong> pesan masuk.
+          <div className="card-footer py-3 text-secondary small">
+            Menampilkan <strong>{filteredContacts.length}</strong> dari <strong>{contacts.length}</strong> surat masuk.
           </div>
         </div>
       )}
@@ -269,17 +274,17 @@ function AdminContacts({ onStatsChange }) {
       {selectedContact && (
         <div
           className="modal fade show d-block"
-          style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+          style={{ backgroundColor: 'rgba(35, 31, 32, 0.65)', zIndex: 1050 }}
           tabIndex="-1"
           role="dialog"
           aria-modal="true"
         >
           <div className="modal-dialog modal-dialog-centered modal-lg">
-            <div className="modal-content border-0 shadow-lg">
-              <div className="modal-header bg-light">
-                <h5 className="modal-title fw-bold text-dark d-flex align-items-center gap-2">
-                  <i className="fa-solid fa-envelope-open-text text-primary"></i>
-                  Detail Pesan Kontak
+            <div className="modal-content overflow-hidden">
+              <div className="modal-header py-3 px-4">
+                <h5 className="modal-title font-serif fw-bold text-dark d-flex align-items-center gap-2">
+                  <i className="fa-solid fa-envelope-open-text" style={{ color: 'var(--accent-primary)' }}></i>
+                  Detail Surat Pembaca
                 </h5>
                 <button
                   type="button"
@@ -288,28 +293,29 @@ function AdminContacts({ onStatsChange }) {
                 ></button>
               </div>
               <div className="modal-body p-4">
-                <div className="row g-3 mb-4 pb-3 border-bottom">
+                <div className="row g-3 mb-4 pb-3 border-bottom" style={{ borderColor: 'var(--border-subtle) !important' }}>
                   <div className="col-md-6">
-                    <small className="text-muted d-block">Nama Pengirim:</small>
-                    <strong className="fs-6 text-dark">{selectedContact.name}</strong>
+                    <small className="text-muted d-block">Pengirim:</small>
+                    <strong className="fs-6 text-dark font-serif">{selectedContact.name}</strong>
                   </div>
                   <div className="col-md-6">
                     <small className="text-muted d-block">Alamat Email:</small>
                     <a
                       href={`mailto:${selectedContact.email}`}
-                      className="text-primary text-decoration-none fw-semibold"
+                      className="text-decoration-none fw-semibold"
+                      style={{ color: 'var(--accent-primary)' }}
                     >
                       {selectedContact.email}
                     </a>
                   </div>
                   <div className="col-md-6">
-                    <small className="text-muted d-block">Kategori / Subjek:</small>
-                    <span className={`badge px-2 py-1 rounded-pill ${getSubjectBadge(selectedContact.subject)}`}>
+                    <small className="text-muted d-block">Topik / Subjek:</small>
+                    <span className="book-card-genre mt-1">
                       {selectedContact.subject || 'Pertanyaan Umum'}
                     </span>
                   </div>
                   <div className="col-md-6">
-                    <small className="text-muted d-block">Waktu Pengiriman:</small>
+                    <small className="text-muted d-block">Diterima Pada:</small>
                     <span className="text-secondary small">
                       {formatDate(selectedContact.created_at)}
                     </span>
@@ -317,26 +323,34 @@ function AdminContacts({ onStatsChange }) {
                 </div>
 
                 <div>
-                  <h6 className="fw-bold text-dark mb-2">Isi Pesan:</h6>
+                  <h6 className="fw-bold mb-2 small text-uppercase" style={{ letterSpacing: '0.04em', color: 'var(--text-secondary)' }}>
+                    Isi Pesan Surat:
+                  </h6>
                   <div
-                    className="p-3 bg-light rounded-3 text-dark border"
-                    style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}
+                    className="p-4 rounded-3"
+                    style={{
+                      backgroundColor: 'var(--bg-secondary)',
+                      border: '1px solid var(--border-subtle)',
+                      color: 'var(--text-primary)',
+                      whiteSpace: 'pre-wrap',
+                      lineHeight: '1.7',
+                    }}
                   >
                     {selectedContact.message}
                   </div>
                 </div>
               </div>
-              <div className="modal-footer bg-light">
+              <div className="modal-footer py-3 px-4">
                 <a
-                  href={`mailto:${selectedContact.email}?subject=Balasan: ${encodeURIComponent(selectedContact.subject || 'Pertanyaan Buku')}`}
-                  className="btn btn-primary d-inline-flex align-items-center gap-2"
+                  href={`mailto:${selectedContact.email}?subject=Balasan Bookstore: ${encodeURIComponent(selectedContact.subject || 'Pertanyaan')}`}
+                  className="btn btn-primary rounded-pill px-4 fw-semibold d-inline-flex align-items-center gap-2"
                 >
                   <i className="fa-solid fa-reply"></i>
                   Balas via Email
                 </a>
                 <button
                   type="button"
-                  className="btn btn-secondary"
+                  className="btn btn-outline-secondary rounded-pill px-4"
                   onClick={() => setSelectedContact(null)}
                 >
                   Tutup
@@ -351,17 +365,17 @@ function AdminContacts({ onStatsChange }) {
       {deleteTarget && (
         <div
           className="modal fade show d-block"
-          style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+          style={{ backgroundColor: 'rgba(35, 31, 32, 0.65)', zIndex: 1050 }}
           tabIndex="-1"
           role="dialog"
           aria-modal="true"
         >
           <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content border-0 shadow-lg">
-              <div className="modal-header border-0 pb-0">
-                <h5 className="modal-title fw-bold text-danger d-flex align-items-center gap-2">
-                  <i className="fa-solid fa-triangle-exclamation"></i>
-                  Konfirmasi Hapus Pesan
+            <div className="modal-content overflow-hidden">
+              <div className="modal-header py-3 px-4">
+                <h5 className="modal-title font-serif fw-bold" style={{ color: '#B93822' }}>
+                  <i className="fa-solid fa-triangle-exclamation me-2"></i>
+                  Hapus Surat Masuk
                 </h5>
                 <button
                   type="button"
@@ -370,21 +384,21 @@ function AdminContacts({ onStatsChange }) {
                   disabled={isDeleting}
                 ></button>
               </div>
-              <div className="modal-body py-3">
-                <p className="mb-2">
-                  Apakah Anda yakin ingin menghapus pesan dari <strong>{deleteTarget.name}</strong> ({deleteTarget.email})?
+              <div className="modal-body p-4">
+                <p className="mb-2" style={{ color: 'var(--text-primary)' }}>
+                  Apakah Anda yakin ingin menghapus surat dari <strong>{deleteTarget.name}</strong> ({deleteTarget.email})?
                 </p>
-                <div className="p-2 bg-light rounded text-muted small fst-italic border">
-                  "{deleteTarget.message?.length > 100 ? deleteTarget.message.slice(0, 100) + '...' : deleteTarget.message}"
+                <div className="p-3 rounded small text-muted fst-italic" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
+                  &ldquo;{deleteTarget.message?.length > 120 ? deleteTarget.message.slice(0, 120) + '...' : deleteTarget.message}&rdquo;
                 </div>
                 <small className="text-danger mt-2 d-block">
                   * Tindakan ini tidak dapat dibatalkan.
                 </small>
               </div>
-              <div className="modal-footer border-0 pt-0">
+              <div className="modal-footer py-3 px-4">
                 <button
                   type="button"
-                  className="btn btn-outline-secondary"
+                  className="btn btn-outline-secondary rounded-pill px-4"
                   onClick={() => setDeleteTarget(null)}
                   disabled={isDeleting}
                 >
@@ -392,21 +406,12 @@ function AdminContacts({ onStatsChange }) {
                 </button>
                 <button
                   type="button"
-                  className="btn btn-danger d-inline-flex align-items-center gap-2"
+                  className="btn btn-danger rounded-pill px-4 fw-semibold"
                   onClick={handleDelete}
                   disabled={isDeleting}
+                  style={{ backgroundColor: '#B93822', borderColor: '#B93822' }}
                 >
-                  {isDeleting ? (
-                    <>
-                      <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                      <span>Menghapus...</span>
-                    </>
-                  ) : (
-                    <>
-                      <i className="fa-solid fa-trash-can"></i>
-                      <span>Hapus Permanen</span>
-                    </>
-                  )}
+                  {isDeleting ? 'Menghapus...' : 'Hapus Surat'}
                 </button>
               </div>
             </div>

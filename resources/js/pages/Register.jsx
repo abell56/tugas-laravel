@@ -251,90 +251,129 @@ function Register() {
         ) : (
           /* Formulir Registrasi */
           <div className="row g-4 align-items-stretch">
-            {/* Kolom Kiri: Ilustrasi & Keuntungan Bergabung */}
+            {/* Kolom Kiri: Kurasi & Keuntungan Bergabung */}
             <div className="col-lg-5 d-none d-lg-flex flex-column justify-content-between">
-              <div className="card border-0 rounded-4 shadow-sm p-4 p-xl-5 text-white bg-primary bg-gradient h-100 position-relative overflow-hidden">
+              <div
+                className="card p-4 p-xl-5 h-100 position-relative overflow-hidden"
+                style={{
+                  backgroundColor: 'var(--bg-secondary)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: '16px',
+                }}
+              >
                 <div className="position-relative" style={{ zIndex: 2 }}>
-                  <div className="d-inline-flex align-items-center gap-2 bg-white bg-opacity-25 px-3 py-1 rounded-pill small mb-4">
-                    <i className="fa-solid fa-sparkles text-warning"></i>
-                    <span>Komunitas Pembaca Nomor 1</span>
+                  <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill small mb-4" style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
+                    <i className="fa-solid fa-feather" style={{ color: 'var(--accent-primary)' }}></i>
+                    <span className="small fw-semibold" style={{ color: 'var(--text-primary)' }}>Keanggotaan Pembaca</span>
                   </div>
 
-                  <h1 className="fw-bold mb-3 display-6">
-                    Mulai Petualangan Membaca Bersama Kami.
+                  <h1 className="editorial-heading fw-bold mb-3 display-6" style={{ fontSize: '1.85rem', lineHeight: '1.3' }}>
+                    Mulai petualangan literasi bersama ruang baca kami.
                   </h1>
-                  <p className="lead opacity-75 fs-6 mb-4">
-                    Buat akun sekarang untuk mendapatkan rekomendasi buku terbaik, akses wishlist pribadi, dan penawaran diskon eksklusif setiap minggu.
+                  <p className="small mb-4" style={{ color: 'var(--text-secondary)', lineHeight: '1.7' }}>
+                    Daftarkan akun sekarang untuk mendapatkan kurasi naskah bermutu, menyimpan riwayat faktur pesanan, dan menikmati layanan pengemasan buku terlindungi.
                   </p>
 
                   <div className="d-flex flex-column gap-3 my-4">
                     <div className="d-flex align-items-center gap-3">
-                      <div className="rounded-circle bg-white text-primary p-2 d-flex align-items-center justify-content-center shadow-sm" style={{ width: '40px', height: '40px' }}>
-                        <i className="fa-solid fa-book"></i>
+                      <div
+                        className="rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0"
+                        style={{
+                          width: '40px',
+                          height: '40px',
+                          backgroundColor: 'var(--bg-surface)',
+                          color: 'var(--accent-primary)',
+                          border: '1px solid var(--border-subtle)',
+                        }}
+                      >
+                        <i className="fa-solid fa-book-open"></i>
                       </div>
                       <div>
-                        <h6 className="fw-bold mb-0">10.000+ Judul Buku</h6>
-                        <small className="opacity-75">Koleksi genre lengkap & best seller dunia</small>
+                        <h6 className="fw-bold mb-0 small" style={{ color: 'var(--text-primary)' }}>Koleksi Kurasi Berkualitas</h6>
+                        <small className="text-muted">Karya berbobot dari penulis nasional & dunia</small>
                       </div>
                     </div>
 
                     <div className="d-flex align-items-center gap-3">
-                      <div className="rounded-circle bg-white text-primary p-2 d-flex align-items-center justify-content-center shadow-sm" style={{ width: '40px', height: '40px' }}>
-                        <i className="fa-solid fa-tag"></i>
+                      <div
+                        className="rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0"
+                        style={{
+                          width: '40px',
+                          height: '40px',
+                          backgroundColor: 'var(--bg-surface)',
+                          color: 'var(--accent-secondary)',
+                          border: '1px solid var(--border-subtle)',
+                        }}
+                      >
+                        <i className="fa-solid fa-stamp"></i>
                       </div>
                       <div>
-                        <h6 className="fw-bold mb-0">Voucher Diskon Member</h6>
-                        <small className="opacity-75">Potongan spesial langsung untuk pembaca baru</small>
+                        <h6 className="fw-bold mb-0 small" style={{ color: 'var(--text-primary)' }}>100% Eksemplar Resmi</h6>
+                        <small className="text-muted">Langsung dari penerbit dengan jaminan keaslian</small>
                       </div>
                     </div>
 
                     <div className="d-flex align-items-center gap-3">
-                      <div className="rounded-circle bg-white text-primary p-2 d-flex align-items-center justify-content-center shadow-sm" style={{ width: '40px', height: '40px' }}>
-                        <i className="fa-solid fa-shield-check"></i>
+                      <div
+                        className="rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0"
+                        style={{
+                          width: '40px',
+                          height: '40px',
+                          backgroundColor: 'var(--bg-surface)',
+                          color: 'var(--accent-gold)',
+                          border: '1px solid var(--border-subtle)',
+                        }}
+                      >
+                        <i className="fa-solid fa-shield-halved"></i>
                       </div>
                       <div>
-                        <h6 className="fw-bold mb-0">Keamanan Terjamin</h6>
-                        <small className="opacity-75">Data pribadi Anda terlindungi dengan enkripsi</small>
+                        <h6 className="fw-bold mb-0 small" style={{ color: 'var(--text-primary)' }}>Transaksi Aman & Terpercaya</h6>
+                        <small className="text-muted">Didukung gateway pembayaran Midtrans Snap</small>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Testimonial / Social Proof Footer */}
-                <div className="mt-4 pt-3 border-top border-white border-opacity-25 position-relative" style={{ zIndex: 2 }}>
+                {/* Footer Social Proof */}
+                <div className="mt-4 pt-3 border-top position-relative" style={{ borderColor: 'var(--border-subtle) !important', zIndex: 2 }}>
                   <div className="d-flex align-items-center gap-2 mb-1">
-                    <div className="text-warning">
+                    <div style={{ color: 'var(--accent-gold)' }}>
                       <i className="fa-solid fa-star"></i>
                       <i className="fa-solid fa-star"></i>
                       <i className="fa-solid fa-star"></i>
                       <i className="fa-solid fa-star"></i>
                       <i className="fa-solid fa-star"></i>
                     </div>
-                    <span className="fw-bold small">4.9 / 5.0</span>
+                    <span className="fw-bold small" style={{ color: 'var(--text-primary)' }}>4.9 / 5.0</span>
                   </div>
-                  <small className="opacity-75 d-block">
-                    Dipercaya lebih dari 25.000 pembaca aktif di seluruh Indonesia.
+                  <small className="text-muted d-block">
+                    Dipercaya oleh ribuan pembaca setia di seluruh penjuru Indonesia.
                   </small>
                 </div>
-
-                {/* Decorative Background Circles */}
-                <div
-                  className="position-absolute bg-white opacity-10 rounded-circle"
-                  style={{ width: '320px', height: '320px', bottom: '-100px', right: '-100px', pointerEvents: 'none' }}
-                ></div>
               </div>
             </div>
 
             {/* Kolom Kanan: Card Formulir Registrasi */}
             <div className="col-lg-7">
-              <div className="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+              <div className="card p-4 p-md-5" style={{ backgroundColor: 'var(--bg-surface)' }}>
                 <div className="mb-4">
-                  <span className="badge bg-primary-subtle text-primary px-3 py-1 rounded-pill mb-2 fw-semibold">
-                    Registrasi Pengguna
+                  <span
+                    className="badge rounded-pill px-3 py-1 mb-2"
+                    style={{
+                      backgroundColor: 'var(--accent-light)',
+                      color: 'var(--accent-primary)',
+                      border: '1px solid rgba(200, 90, 50, 0.25)',
+                      fontSize: '0.75rem',
+                      letterSpacing: '0.04em',
+                    }}
+                  >
+                    <i className="fa-solid fa-user-plus me-1"></i> Registrasi Anggota
                   </span>
-                  <h2 className="fw-bold text-dark mb-1">Buat Akun Baru</h2>
-                  <p className="text-secondary small mb-0">
-                    Lengkapi informasi formulir di bawah ini dengan data yang valid.
+                  <h2 className="editorial-heading fw-bold mb-1" style={{ fontSize: '1.75rem' }}>
+                    Daftar Akun Pembaca
+                  </h2>
+                  <p className="small mb-0" style={{ color: 'var(--text-secondary)' }}>
+                    Lengkapi informasi di bawah ini untuk membuat akun di database Bookstore.
                   </p>
                 </div>
 

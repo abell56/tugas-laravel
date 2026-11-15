@@ -1,176 +1,434 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router'
-import books from '../Utils/books'
+import { useCart } from '../context/CartContext'
+import defaultBooksFallback from '../Utils/books'
 
 function Home() {
-  return (
-    <>
-      {/* Hero Section */}
-      <div className="container my-5">
-        <div className="row p-4 pb-0 pe-lg-0 pt-lg-5 align-items-center rounded-3 border shadow-lg bg-white">
-          <div className="col-lg-7 p-3 p-lg-5 pt-lg-3">
-            <span className="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill mb-3 fw-semibold">
-              <i className="fa-solid fa-award me-1"></i> #1 Best Seller of the Month
-            </span>
-            <h1 className="display-4 fw-bold lh-1 text-body-emphasis mb-3">
-              Atomic Habits: Perubahan Kecil yang Memberikan Hasil Luar Biasa
-            </h1>
-            <p className="lead text-secondary mb-4">
-              Cara termudah dan terbukti untuk membangun kebiasaan baik dan melepaskan kebiasaan buruk karya <strong>James Clear</strong>. Mulai transformasi hidup Anda cukup 1% setiap hari.
-            </p>
-            <div className="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
-              <button
-                type="button"
-                className="btn btn-primary btn-lg px-4 me-md-2 fw-semibold"
-                onClick={() => alert('Buku Atomic Habits berhasil ditambahkan ke keranjang belanja!')}
-              >
-                <i className="fa-solid fa-cart-shopping me-2"></i>Beli Sekarang (Rp 98.000)
-              </button>
-              <Link
-                to="/book"
-                className="btn btn-outline-secondary btn-lg px-4"
-              >
-                <i className="fa-solid fa-book-open me-2"></i>Lihat Koleksi Lengkap
-              </Link>
-            </div>
-            <div className="d-flex align-items-center gap-3 pt-2 text-muted small">
-              <span><i className="fa-solid fa-star text-warning"></i> 4.9 (1.200+ Ulasan)</span>
-              <span>•</span>
-              <span><i className="fa-solid fa-check text-success"></i> 100% Original</span>
-              <span>•</span>
-              <span><i className="fa-solid fa-truck-fast text-primary"></i> Gratis Ongkir</span>
-            </div>
-          </div>
-          <div className="col-lg-4 offset-lg-1 p-0 overflow-hidden shadow-lg rounded-3">
-            <img
-              className="rounded-3 hero-book-img"
-              src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=800&auto=format&fit=crop"
-              alt="Atomic Habits Book Cover"
-            />
-          </div>
-        </div>
-      </div>
+  const { addToCart } = useCart()
+  const [featuredBooks, setFeaturedBooks] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [addedId, setAddedId] = useState(null)
 
-      {/* Product List Intro */}
-      <section className="py-4 text-center container">
-        <div className="row py-lg-4">
-          <div className="col-lg-7 col-md-8 mx-auto">
-            <span className="badge bg-secondary-subtle text-secondary px-3 py-1 rounded-pill mb-2">Koleksi Terpopuler</span>
-            <h1 className="fw-bold text-dark">Best Selling Books</h1>
-            <p className="lead text-body-secondary">
-              Jelajahi buku-buku terlaris pilihan pembaca bookstore. Dari pengembangan diri, finansial, hingga sastra klasik untuk menemani waktu luang Anda.
-            </p>
-            <div className="d-flex justify-content-center gap-2">
-              <Link
-                to="/book"
-                className="btn btn-primary px-4"
-              >
-                <i className="fa-solid fa-layer-group me-2"></i>Semua Buku
-              </Link>
-              <Link
-                to="/contact"
-                className="btn btn-outline-secondary px-4"
-              >
-                <i className="fa-solid fa-envelope me-2"></i>Hubungi Kami
-              </Link>
+  // Format Rupiah
+  const formatRupiah = (val) => {
+    if (typeof val === 'string' && val.startsWith('Rp')) return val
+    const num = Number(val) || 0
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      maximumFractionDigits: 0,
+    }).format(num)
+  }
+
+  // Load books from Laravel API (with graceful fallback)
+  useEffect(() => {
+    const fetchHomeBooks = async () => {
+      try {
+        const res = await fetch('/api/books')
+        if (res.ok) {
+          const data = await res.json()
+          if (Array.isArray(data) && data.length > 0) {
+            const formatted = data.map((b) => ({
+              id: b.id,
+              title: b.title || b.description || 'Karya Terpilih',
+              author: b.author?.name || 'Penulis Buku',
+              category: b.genre?.name || 'Sastra & Esai',
+              price: Number(b.price) || 85000,
+              stock: b.stock ?? 10,
+              description: b.description || 'Sebuah karya bermutu yang memperkaya cara pandang pembaca.',
+              image: b.cover_photo || '',
+              rating: 4.9,
+            }))
+            setFeaturedBooks(formatted)
+            setLoading(false)
+            return
+          }
+        }
+      } catch (err) {
+        console.warn('Menggunakan fallback data lokal untuk Home:', err)
+      }
+      setFeaturedBooks(defaultBooksFallback)
+      setLoading(false)
+    }
+
+    fetchHomeBooks()
+  }, [])
+
+  const handleAddToCart = (book) => {
+    addToCart(book)
+    setAddedId(book.id)
+    setTimeout(() => setAddedId(null), 2000)
+  }
+
+  const spotlightBook = featuredBooks[0] || defaultBooksFallback[0]
+
+  return (
+    <div className="py-4 py-lg-5">
+      {/* =====================================================================
+          1. ASYMMETRIC "CURATED READING ROOM" HERO
+          ===================================================================== */}
+      <section className="container mb-5">
+        <div className="editorial-hero-wrapper p-4 p-md-5">
+          <div className="row g-5 align-items-center">
+            {/* Left Column: Literary Introduction */}
+            <div className="col-lg-7">
+              <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
+                <span className="badge rounded-circle p-1" style={{ backgroundColor: 'var(--accent-primary)', width: '8px', height: '8px' }}></span>
+                <span className="small fw-semibold" style={{ color: 'var(--accent-primary)', letterSpacing: '0.04em', fontSize: '0.78rem', textTransform: 'uppercase' }}>
+                  Ruang Kurasi Independen
+                </span>
+              </div>
+
+              <h1 className="display-5 fw-bold mb-3" style={{ lineHeight: '1.25' }}>
+                Kisah & pemikiran yang mengendap lama setelah halaman terakhir ditutup.
+              </h1>
+
+              <p className="lead mb-4" style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: '1.75' }}>
+                Selamat datang di <strong>Bookstore</strong>. Kami mengurasi setiap judul dengan kesabaran—menjembatani rasa penasaran Anda dengan karya-karya sastra, teknologi, dan humaniora yang bermakna bagi rak buku pribadi Anda.
+              </p>
+
+              <div className="d-flex flex-wrap gap-3 mb-4">
+                <Link
+                  to="/book"
+                  className="btn btn-primary px-4 py-2 rounded-pill fw-semibold shadow-sm d-inline-flex align-items-center gap-2"
+                >
+                  <i className="fa-solid fa-book-open"></i>
+                  <span>Jelajahi Koleksi Rak</span>
+                </Link>
+                <Link
+                  to="/about"
+                  className="btn btn-outline-secondary px-4 py-2 rounded-pill fw-semibold d-inline-flex align-items-center gap-2"
+                >
+                  <i className="fa-regular fa-compass"></i>
+                  <span>Tentang Kurasi Kami</span>
+                </Link>
+              </div>
+
+              <div className="d-flex flex-wrap align-items-center gap-3 pt-3 border-top small" style={{ borderColor: 'var(--border-subtle) !important', color: 'var(--text-secondary)' }}>
+                <span className="d-flex align-items-center gap-1">
+                  <i className="fa-solid fa-certificate" style={{ color: 'var(--accent-secondary)' }}></i>
+                  100% Eksemplar Resmi
+                </span>
+                <span>•</span>
+                <span className="d-flex align-items-center gap-1">
+                  <i className="fa-solid fa-box" style={{ color: 'var(--accent-primary)' }}></i>
+                  Pengemasan Berlapis Kardus
+                </span>
+                <span>•</span>
+                <span className="d-flex align-items-center gap-1">
+                  <i className="fa-solid fa-shield-halved" style={{ color: 'var(--accent-secondary)' }}></i>
+                  Midtrans Verified
+                </span>
+              </div>
+            </div>
+
+            {/* Right Column: Physical Spotlight Book with Realistic Elevation */}
+            <div className="col-lg-5">
+              {spotlightBook && (
+                <div
+                  className="card p-4 mx-auto"
+                  style={{
+                    backgroundColor: 'var(--bg-surface)',
+                    borderColor: 'var(--border-subtle)',
+                    maxWidth: '380px',
+                    borderRadius: '14px',
+                  }}
+                >
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <span
+                      className="badge rounded-pill px-3 py-1"
+                      style={{
+                        backgroundColor: 'var(--accent-light)',
+                        color: 'var(--accent-primary)',
+                        border: '1px solid rgba(200, 90, 50, 0.25)',
+                        fontSize: '0.75rem',
+                      }}
+                    >
+                      <i className="fa-solid fa-bookmark me-1"></i> Pilihan Kurator Bulan Ini
+                    </span>
+                    <span className="small text-muted">
+                      Stok: {spotlightBook.stock}
+                    </span>
+                  </div>
+
+                  {/* Physical 2:3 Book Showcase */}
+                  <div className="book-cover-stage rounded-3 mb-3">
+                    <div className="book-cover-frame">
+                      {spotlightBook.image ? (
+                        <img
+                          src={spotlightBook.image}
+                          alt={spotlightBook.title}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null
+                            e.currentTarget.src =
+                              'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=700&auto=format&fit=crop'
+                          }}
+                        />
+                      ) : (
+                        <div className="book-cover-fallback">
+                          <div className="book-cover-fallback-icon">
+                            <i className="fa-solid fa-book"></i>
+                          </div>
+                          <span className="book-cover-fallback-title">
+                            {spotlightBook.title}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="text-center">
+                    <span className="book-card-genre mb-2">
+                      {spotlightBook.category}
+                    </span>
+                    <h5 className="font-serif fw-bold mb-1" style={{ color: 'var(--text-primary)' }}>
+                      {spotlightBook.title}
+                    </h5>
+                    <p className="book-card-author mb-3">
+                      Karya {spotlightBook.author}
+                    </p>
+                    <div className="d-flex justify-content-between align-items-center pt-3 border-top" style={{ borderColor: 'var(--border-subtle) !important' }}>
+                      <span className="book-price-tag fs-5">
+                        {formatRupiah(spotlightBook.price)}
+                      </span>
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm px-3 rounded-pill fw-semibold"
+                        onClick={() => handleAddToCart(spotlightBook)}
+                      >
+                        <i className={`fa-solid ${addedId === spotlightBook.id ? 'fa-check' : 'fa-cart-plus'} me-1`}></i>
+                        {addedId === spotlightBook.id ? 'Ditambahkan' : '+ Keranjang'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Product Grid / Album Cards */}
-      <div className="album py-5 bg-body-tertiary">
-        <div className="container">
-          <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
-            {books.map((book) => (
-              <div className="col" key={book.id}>
-                <div className="card h-100 shadow-sm border-0 book-card">
-                  <div className="position-relative overflow-hidden">
-                    <img
-                      src={book.image}
-                      className="card-img-top book-cover-img"
-                      alt={book.title}
-                      onError={(e) => {
-                        e.currentTarget.onerror = null
-                        e.currentTarget.src = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=700&auto=format&fit=crop'
-                      }}
-                    />
-                    {book.category && (
-                      <span className="position-absolute top-0 end-0 m-2 badge bg-primary">
-                        {book.category}
-                      </span>
-                    )}
-                    <span className="position-absolute top-0 start-0 m-2 badge bg-dark bg-opacity-75">
-                      <i className="fa-regular fa-calendar me-1"></i>{book.year}
-                    </span>
-                  </div>
-                  <div className="card-body d-flex flex-column">
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <small className="text-muted fw-medium">
-                        <i className="fa-solid fa-user-pen me-1"></i>{book.author}
-                      </small>
-                      <small className="text-warning fw-semibold">
-                        <i className="fa-solid fa-star me-1"></i>
-                        {book.rating || '4.8'} ({book.reviews || '500+'})
-                      </small>
+      {/* =====================================================================
+          2. CURATED SHELF GRID (TACTILE 2:3 BOOK CARDS)
+          ===================================================================== */}
+      <section className="container mb-5 py-4">
+        <div className="d-flex flex-wrap justify-content-between align-items-end mb-4 pb-2 border-bottom" style={{ borderColor: 'var(--border-subtle) !important' }}>
+          <div>
+            <span className="badge rounded-pill px-3 py-1 mb-2" style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)' }}>
+              Rak Pilihan Pembaca
+            </span>
+            <h2 className="editorial-heading h3 fw-bold mb-0">
+              Koleksi Unggulan Toko Buku
+            </h2>
+          </div>
+          <Link to="/book" className="btn btn-outline-secondary btn-sm px-3 rounded-pill mt-3 mt-sm-0">
+            Lihat Semua Koleksi ({featuredBooks.length}) <i className="fa-solid fa-arrow-right ms-1"></i>
+          </Link>
+        </div>
+
+        {loading ? (
+          <div className="text-center py-5">
+            <div className="spinner-border text-secondary mb-3" role="status"></div>
+            <p className="text-muted small">Menata buku-buku di rak perpustakaan...</p>
+          </div>
+        ) : (
+          <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+            {featuredBooks.slice(0, 8).map((book) => {
+              const hasImage = Boolean(book.image && (book.image.startsWith('http://') || book.image.startsWith('https://') || book.image.startsWith('/')))
+
+              return (
+                <div className="col" key={book.id}>
+                  <div className="editorial-book-card">
+                    {/* Physical Cover Stage with 2:3 Frame */}
+                    <div className="book-cover-stage">
+                      <div className="book-cover-frame">
+                        {hasImage ? (
+                          <img
+                            src={book.image}
+                            alt={book.title}
+                            onError={(e) => {
+                              e.currentTarget.onerror = null
+                              e.currentTarget.src =
+                                'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=700&auto=format&fit=crop'
+                            }}
+                          />
+                        ) : (
+                          <div className="book-cover-fallback">
+                            <div className="book-cover-fallback-icon">
+                              <i className="fa-solid fa-book-open"></i>
+                            </div>
+                            <span className="book-cover-fallback-title">
+                              {book.title}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <h5 className="card-title fw-bold text-dark mb-2 text-truncate" title={book.title}>
-                      {book.title}
-                    </h5>
-                    <p className="card-text text-secondary small flex-grow-1">
-                      {book.description}
-                    </p>
-                    <div className="d-flex justify-content-between align-items-center pt-3 border-top mt-2">
-                      <span className="text-primary fw-bold fs-5">{book.price || 'Rp 85.000'}</span>
-                      <div className="btn-group">
+
+                    {/* Book Metadata & Actions */}
+                    <div className="p-3 d-flex flex-column flex-grow-1">
+                      <div className="d-flex justify-content-between align-items-center mb-2">
+                        <span className="book-card-genre">
+                          {book.category}
+                        </span>
+                        <span
+                          className="badge rounded-pill"
+                          style={{
+                            backgroundColor: 'var(--accent-secondary-light)',
+                            color: 'var(--accent-secondary)',
+                            fontSize: '0.72rem',
+                          }}
+                        >
+                          Tersedia
+                        </span>
+                      </div>
+
+                      <h3 className="book-card-title" title={book.title}>
+                        {book.title}
+                      </h3>
+
+                      <p className="book-card-author mb-2">
+                        {book.author}
+                      </p>
+
+                      <p
+                        className="small text-muted flex-grow-1 mb-3"
+                        style={{
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                          lineHeight: '1.5',
+                        }}
+                      >
+                        {book.description}
+                      </p>
+
+                      <div className="d-flex justify-content-between align-items-center pt-2 border-top mt-auto" style={{ borderColor: 'var(--border-subtle) !important' }}>
+                        <span className="book-price-tag fs-6">
+                          {formatRupiah(book.price)}
+                        </span>
                         <button
                           type="button"
-                          className="btn btn-sm btn-outline-primary"
-                          onClick={() => alert(`Detail buku: ${book.title}\nPenulis: ${book.author}\nTahun: ${book.year}\nDeskripsi: ${book.description}`)}
+                          className="btn btn-outline-primary btn-sm px-3 rounded-pill"
+                          onClick={() => handleAddToCart(book)}
+                          disabled={book.stock <= 0}
                         >
-                          Detail
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-primary"
-                          onClick={() => alert(`Berhasil menambahkan "${book.title}" ke keranjang!`)}
-                        >
-                          <i className="fa-solid fa-cart-shopping me-1"></i>Beli
+                          <i className={`fa-solid ${addedId === book.id ? 'fa-check' : 'fa-basket-shopping'} me-1`}></i>
+                          {addedId === book.id ? 'Tersimpan' : '+ Keranjang'}
                         </button>
                       </div>
                     </div>
                   </div>
                 </div>
+              )
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* =====================================================================
+          3. EDITORIAL MANIFESTO (ANTI-AI HUMAN CRAFTED)
+          ===================================================================== */}
+      <section className="container my-5">
+        <div className="row g-4">
+          <div className="col-md-4">
+            <div className="card p-4 h-100">
+              <div
+                className="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  backgroundColor: 'var(--bg-secondary)',
+                  color: 'var(--accent-primary)',
+                  fontSize: '1.1rem',
+                }}
+              >
+                <i className="fa-solid fa-feather-pointed"></i>
               </div>
-            ))}
+              <h5 className="font-serif fw-bold mb-2">Kurasi Berbobot</h5>
+              <p className="small mb-0" style={{ color: 'var(--text-secondary)', lineHeight: '1.65' }}>
+                Kami tidak mengumpulkan ribuan judul acak. Setiap buku di rak kami telah melalui telaah atas kebaruan pemikiran dan kualitas penulisan.
+              </p>
+            </div>
+          </div>
+
+          <div className="col-md-4">
+            <div className="card p-4 h-100">
+              <div
+                className="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  backgroundColor: 'var(--bg-secondary)',
+                  color: 'var(--accent-secondary)',
+                  fontSize: '1.1rem',
+                }}
+              >
+                <i className="fa-solid fa-stamp"></i>
+              </div>
+              <h5 className="font-serif fw-bold mb-2">Integritas Penerbit Resmi</h5>
+              <p className="small mb-0" style={{ color: 'var(--text-secondary)', lineHeight: '1.65' }}>
+                Hanya mendistribusikan karya asli langsung dari penerbit terpercaya. Menghargai hak cipta dan keringat para penulis Indonesia dan dunia.
+              </p>
+            </div>
+          </div>
+
+          <div className="col-md-4">
+            <div className="card p-4 h-100">
+              <div
+                className="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  backgroundColor: 'var(--bg-secondary)',
+                  color: 'var(--accent-gold)',
+                  fontSize: '1.1rem',
+                }}
+              >
+                <i className="fa-solid fa-handshake-angle"></i>
+              </div>
+              <h5 className="font-serif fw-bold mb-2">Layanan yang Bersahabat</h5>
+              <p className="small mb-0" style={{ color: 'var(--text-secondary)', lineHeight: '1.65' }}>
+                Butuh rekomendasi bacaan atau kendala pengiriman? Tim kami siap berdiskusi langsung melalui pesan kontak atau surel.
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Call to Action: Registrasi Member Baru */}
-      <section className="py-5 bg-white border-top">
-        <div className="container">
-          <div className="row align-items-center justify-content-between p-4 p-lg-5 rounded-4 bg-primary bg-gradient text-white shadow">
-            <div className="col-lg-8 mb-4 mb-lg-0">
-              <span className="badge bg-white text-primary px-3 py-1 rounded-pill mb-2 fw-semibold">
-                <i className="fa-solid fa-gift me-1"></i> Promo Khusus Pengguna Baru
+      {/* =====================================================================
+          4. INVITATION BANNER (WARM NATURAL TONES)
+          ===================================================================== */}
+      <section className="container mt-5 pt-3">
+        <div
+          className="p-4 p-md-5 rounded-4"
+          style={{
+            backgroundColor: 'var(--bg-secondary)',
+            border: '1px solid var(--border-subtle)',
+          }}
+        >
+          <div className="row align-items-center justify-content-between g-4">
+            <div className="col-lg-8">
+              <span className="badge rounded-pill px-3 py-1 mb-2" style={{ backgroundColor: 'var(--accent-light)', color: 'var(--accent-primary)', border: '1px solid rgba(200, 90, 50, 0.2)' }}>
+                Komunitas Pembaca
               </span>
-              <h2 className="fw-bold mb-2">Belum Memiliki Akun Bookstore?</h2>
-              <p className="lead fs-6 opacity-75 mb-0">
-                Daftar sekarang dalam hitungan menit untuk menikmati diskon eksklusif 30%, simpan buku impian ke wishlist, dan dapatkan notifikasi buku terbaru.
+              <h3 className="editorial-heading fw-bold mb-2">
+                Mulai bangun perpustakaan pribadi Anda hari ini.
+              </h3>
+              <p className="mb-0" style={{ color: 'var(--text-secondary)', maxWidth: '580px' }}>
+                Daftarkan akun untuk menyimpan riwayat pesanan buku, memantau pengiriman, dan mendapatkan catatan rekomendasi edisi terbatas dari kurator kami.
               </p>
             </div>
             <div className="col-lg-4 text-lg-end">
-              <Link
-                to="/register"
-                className="btn btn-light btn-lg px-4 py-3 rounded-pill fw-bold text-primary shadow-sm"
-              >
-                <i className="fa-solid fa-user-plus me-2"></i>Daftar Akun Sekarang
+              <Link to="/register" className="btn btn-primary px-4 py-2 rounded-pill fw-semibold shadow-sm">
+                <i className="fa-solid fa-user-plus me-2"></i>Daftar Anggota Pembaca
               </Link>
             </div>
           </div>
         </div>
       </section>
-    </>
+    </div>
   )
 }
 

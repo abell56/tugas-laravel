@@ -3,8 +3,8 @@ import { Link } from 'react-router'
 import { useAuth } from '../context/AuthContext'
 
 /**
- * Halaman Profil Pengguna (Profile)
- * Menampilkan rincian identitas akun, status peran, dan Riwayat Pesanan Buku dari database MySQL.
+ * Halaman Profil Pengguna & Riwayat Transaksi (Profile)
+ * Menampilkan kartu profil dan riwayat pesanan bergaya tanda terima fisik (receipt-style).
  */
 function Profile() {
   const { user, isAdmin, logout } = useAuth()
@@ -26,14 +26,13 @@ function Profile() {
     const fetchUserOrders = async () => {
       setLoadingOrders(true)
       try {
-        // Ambil transaksi user berdasarkan user.id atau ambil semua jika admin
         const endpoint = user?.id
           ? `/api/transactions?customer_id=${user.id}`
           : '/api/transactions'
         const res = await fetch(endpoint)
         if (res.ok) {
           const data = await res.json()
-          setOrders(data)
+          setOrders(Array.isArray(data) ? data : [])
         }
       } catch (err) {
         console.error('Gagal mengambil riwayat transaksi:', err)
@@ -50,30 +49,26 @@ function Profile() {
   }, [user])
 
   return (
-    <div className="profile-page py-5 bg-body-tertiary">
+    <div className="py-5">
       <div className="container">
         {/* Header Section */}
         <div className="row mb-4">
-          <div className="col-12">
-            <nav aria-label="breadcrumb">
-              <ol className="breadcrumb mb-2">
-                <li className="breadcrumb-item">
-                  <Link to="/" className="text-decoration-none">
-                    <i className="fa-solid fa-house me-1"></i>
-                    Home
-                  </Link>
-                </li>
-                <li className="breadcrumb-item active" aria-current="page">
-                  Profil Akun
-                </li>
-              </ol>
-            </nav>
-            <h1 className="h3 fw-bold text-dark mb-1">
-              <i className="fa-solid fa-circle-user text-primary me-2"></i>
-              Profil Saya
+          <div className="col-12 pb-3 border-bottom" style={{ borderColor: 'var(--border-subtle) !important' }}>
+            <span
+              className="badge rounded-pill px-3 py-1 mb-2"
+              style={{
+                backgroundColor: 'var(--accent-light)',
+                color: 'var(--accent-primary)',
+                border: '1px solid rgba(200, 90, 50, 0.25)',
+              }}
+            >
+              <i className="fa-regular fa-id-badge me-1"></i> Akun Anggota
+            </span>
+            <h1 className="editorial-heading fw-bold mb-1">
+              Profil & Riwayat Transaksi
             </h1>
-            <p className="text-secondary small mb-0">
-              Kelola informasi profil, riwayat pesanan, dan kredensial akun Anda.
+            <p className="small mb-0" style={{ color: 'var(--text-secondary)' }}>
+              Kelola informasi akun pembaca dan pantau status penerbitan serta pengiriman pesanan Anda.
             </p>
           </div>
         </div>
@@ -81,98 +76,124 @@ function Profile() {
         <div className="row g-4">
           {/* Kolom Kiri: Kartu Identitas Pengguna */}
           <div className="col-12 col-lg-4">
-            <div className="card border-0 shadow-sm rounded-4 text-center p-4">
+            <div
+              className="card p-4 text-center sticky-top"
+              style={{
+                top: '90px',
+                backgroundColor: 'var(--bg-surface)',
+                borderColor: 'var(--border-subtle)',
+              }}
+            >
               <div className="position-relative d-inline-block mx-auto mb-3">
                 <img
                   src={
                     user?.avatar ||
                     `https://ui-avatars.com/api/?name=${encodeURIComponent(
                       user?.fullName || user?.name || 'User',
-                    )}&background=0d6efd&color=fff&size=128`
+                    )}&background=FAF7F2&color=C85A32&size=128&bold=true`
                   }
                   alt={user?.fullName || user?.name}
-                  className="rounded-circle img-thumbnail shadow-sm"
-                  style={{ width: '120px', height: '120px', objectFit: 'cover' }}
+                  className="rounded-circle shadow-sm"
+                  style={{
+                    width: '110px',
+                    height: '110px',
+                    objectFit: 'cover',
+                    border: '3px solid var(--border-subtle)',
+                  }}
                 />
                 <span
-                  className={`position-absolute bottom-0 end-0 badge rounded-pill ${
-                    isAdmin ? 'bg-danger' : 'bg-primary'
-                  } p-2 border border-2 border-white`}
-                  title={`Peran: ${user?.role}`}
+                  className="position-absolute bottom-0 end-0 badge rounded-pill px-2 py-1 text-uppercase"
+                  style={{
+                    backgroundColor: isAdmin ? 'var(--accent-primary)' : 'var(--accent-secondary)',
+                    color: '#FFFDF9',
+                    fontSize: '0.68rem',
+                    border: '2px solid var(--bg-surface)',
+                  }}
                 >
-                  <i className={`fa-solid ${isAdmin ? 'fa-shield-halved' : 'fa-user'}`}></i>
+                  {user?.role || 'customer'}
                 </span>
               </div>
 
-              <h4 className="fw-bold mb-1 text-dark">{user?.fullName || user?.name}</h4>
-              <p className="text-muted small mb-2">@{user?.username || 'user'}</p>
-
-              <div className="mb-3">
-                <span
-                  className={`badge px-3 py-2 text-uppercase fs-7 rounded-pill ${
-                    isAdmin
-                      ? 'bg-danger bg-opacity-10 text-danger border border-danger-subtle'
-                      : 'bg-primary bg-opacity-10 text-primary border border-primary-subtle'
-                  }`}
-                >
-                  <i
-                    className={`fa-solid ${
-                      isAdmin ? 'fa-user-shield' : 'fa-circle-check'
-                    } me-1`}
-                  ></i>
-                  {isAdmin ? 'Administrator' : 'Pengguna Biasa (Customer)'}
-                </span>
-              </div>
-
-              <p className="small text-secondary px-2 mb-4">
-                {user?.bio || 'Pengguna resmi Bookstore.'}
+              <h4 className="font-serif fw-bold mb-1" style={{ color: 'var(--text-primary)' }}>
+                {user?.fullName || user?.name || 'Pembaca Bookstore'}
+              </h4>
+              <p className="small text-muted mb-3">
+                {user?.email || 'pembaca@bookstore.id'}
               </p>
 
-              {/* Action Buttons */}
-              <div className="d-grid gap-2">
-                {isAdmin && (
-                  <Link to="/admin" className="btn btn-danger rounded-pill fw-semibold shadow-sm">
-                    <i className="fa-solid fa-gauge-high me-2"></i>
-                    Buka Dashboard Admin
-                  </Link>
-                )}
-
-                <Link to="/cart" className="btn btn-outline-primary rounded-pill fw-semibold">
-                  <i className="fa-solid fa-cart-shopping me-2"></i>
-                  Keranjang Belanja
-                </Link>
-
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary rounded-pill fw-semibold"
-                  onClick={logout}
-                >
-                  <i className="fa-solid fa-right-from-bracket me-2"></i>
-                  Keluar (Logout)
-                </button>
+              <div
+                className="p-3 rounded-3 text-start mb-4 small"
+                style={{
+                  backgroundColor: 'var(--bg-secondary)',
+                  border: '1px solid var(--border-subtle)',
+                }}
+              >
+                <div className="d-flex justify-content-between mb-2">
+                  <span className="text-secondary">Peran Akun:</span>
+                  <span className="fw-semibold text-uppercase" style={{ color: 'var(--text-primary)' }}>
+                    {user?.role || 'customer'}
+                  </span>
+                </div>
+                <div className="d-flex justify-content-between mb-2">
+                  <span className="text-secondary">Total Pesanan:</span>
+                  <span className="fw-semibold" style={{ color: 'var(--text-primary)' }}>
+                    {orders.length} Transaksi
+                  </span>
+                </div>
+                <div className="d-flex justify-content-between">
+                  <span className="text-secondary">Status Anggota:</span>
+                  <span className="fw-semibold" style={{ color: 'var(--accent-secondary)' }}>
+                    <i className="fa-solid fa-circle-check me-1"></i> Aktif Terverifikasi
+                  </span>
+                </div>
               </div>
+
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  className="btn btn-outline-primary w-100 rounded-pill mb-2 fw-semibold btn-sm"
+                >
+                  <i className="fa-solid fa-sliders me-1"></i> Buka Dashboard Admin
+                </Link>
+              )}
+
+              <button
+                type="button"
+                className="btn btn-outline-secondary w-100 rounded-pill btn-sm"
+                onClick={logout}
+              >
+                <i className="fa-solid fa-arrow-right-from-bracket me-1"></i> Keluar dari Akun
+              </button>
             </div>
           </div>
 
-          {/* Kolom Kanan: Rincian Akun & Riwayat Pesanan */}
+          {/* Kolom Kanan: Riwayat Pesanan Bergaya Receipt Card */}
           <div className="col-12 col-lg-8">
-            {/* RIWAYAT PESANAN BUKU DARI DATABASE */}
-            <div className="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
-              <div className="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
-                <h5 className="fw-bold mb-0 text-dark">
-                  <i className="fa-solid fa-receipt text-primary me-2"></i>
-                  Riwayat Pesanan Buku
-                </h5>
-                <span className="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill">
+            <div className="card overflow-hidden">
+              <div className="card-header py-3 px-4 d-flex justify-content-between align-items-center">
+                <div className="d-flex align-items-center gap-2">
+                  <i className="fa-solid fa-receipt" style={{ color: 'var(--accent-primary)' }}></i>
+                  <h5 className="font-serif fw-bold mb-0" style={{ color: 'var(--text-primary)', fontSize: '1.15rem' }}>
+                    Daftar Tanda Terima Pesanan
+                  </h5>
+                </div>
+                <span
+                  className="badge rounded-pill px-3 py-1"
+                  style={{
+                    backgroundColor: 'var(--bg-surface)',
+                    border: '1px solid var(--border-subtle)',
+                    color: 'var(--text-secondary)',
+                  }}
+                >
                   {orders.length} Transaksi
                 </span>
               </div>
 
-              <div className="card-body p-4">
+              <div className="p-4">
                 {loadingOrders ? (
-                  <div className="text-center py-4">
-                    <div className="spinner-border text-primary spinner-border-sm me-2"></div>
-                    Memuat riwayat transaksi dari database...
+                  <div className="text-center py-5">
+                    <div className="spinner-border text-secondary spinner-border-sm me-2"></div>
+                    <span className="small text-muted">Memuat arsip faktur transaksi...</span>
                   </div>
                 ) : orders.length > 0 ? (
                   <div className="d-flex flex-column gap-3">
@@ -189,57 +210,63 @@ function Profile() {
                       }
 
                       return (
-                        <div
-                          key={trx.id}
-                          className="card border rounded-3 p-3 shadow-none bg-body-tertiary"
-                        >
-                          <div className="d-flex justify-content-between align-items-start border-bottom pb-2 mb-3 flex-wrap gap-2">
-                            <div>
-                              <span className="badge bg-primary font-monospace me-2">
+                        <div key={trx.id} className="receipt-order-card">
+                          {/* Receipt Top Header */}
+                          <div className="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom flex-wrap gap-2" style={{ borderColor: 'var(--border-subtle) !important' }}>
+                            <div className="d-flex align-items-center gap-2">
+                              <span className="receipt-order-number">
                                 {trx.order_number}
                               </span>
-                              <span className="badge bg-success">
-                                <i className="fa-solid fa-circle-check me-1"></i>
-                                Lunas (Midtrans Paid)
+                              <span className="receipt-stamp stamp-paid">
+                                <i className="fa-solid fa-stamp me-1"></i> Lunas
                               </span>
                             </div>
                             <small className="text-muted">
-                              ID Transaksi: #{trx.id}
+                              Ref: #{trx.id} • Pembayaran Midtrans
                             </small>
                           </div>
 
+                          {/* Receipt Body Item */}
                           <div className="d-flex align-items-center gap-3">
-                            <img
-                              src={coverImg}
-                              alt={trx.book?.description || 'Buku'}
-                              className="rounded shadow-sm"
-                              style={{ width: '56px', height: '76px', objectFit: 'cover' }}
-                              onError={(e) => {
-                                e.currentTarget.onerror = null
-                                e.currentTarget.src =
-                                  'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=700&auto=format&fit=crop'
+                            <div
+                              className="rounded overflow-hidden shadow-sm flex-shrink-0"
+                              style={{
+                                width: '54px',
+                                height: '76px',
+                                backgroundColor: 'var(--bg-secondary)',
                               }}
-                            />
+                            >
+                              <img
+                                src={coverImg}
+                                alt={trx.book?.description || 'Buku'}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                onError={(e) => {
+                                  e.currentTarget.onerror = null
+                                  e.currentTarget.src =
+                                    'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=700&auto=format&fit=crop'
+                                }}
+                              />
+                            </div>
+
                             <div className="flex-grow-1">
-                              <h6 className="fw-bold mb-1 text-dark">
-                                {trx.book?.description || trx.book?.title || 'Judul Buku'}
+                              <h6 className="font-serif fw-bold mb-1" style={{ color: 'var(--text-primary)', fontSize: '1rem' }}>
+                                {trx.book?.description || trx.book?.title || 'Karya Buku Terpilih'}
                               </h6>
                               <div className="small text-secondary mb-1">
-                                <i className="fa-solid fa-user-pen me-1"></i>
-                                {trx.book?.author?.name || 'Penulis Bookstore'}
+                                Karya {trx.book?.author?.name || 'Penulis Bookstore'}
                                 <span className="mx-2">•</span>
-                                <span className="badge bg-light text-secondary border">
-                                  {trx.book?.genre?.name || 'Umum'}
+                                <span className="book-card-genre">
+                                  {trx.book?.genre?.name || 'Katalog Resmi'}
                                 </span>
                               </div>
-                              <div className="fw-bold text-primary">
+                              <div className="book-price-tag fs-6">
                                 Total: {formatRupiah(trx.total_amount)}
                               </div>
                             </div>
 
                             <Link
                               to="/book"
-                              className="btn btn-sm btn-outline-primary rounded-pill px-3"
+                              className="btn btn-outline-secondary btn-sm rounded-pill px-3"
                             >
                               Beli Lagi
                             </Link>
@@ -249,63 +276,17 @@ function Profile() {
                     })}
                   </div>
                 ) : (
-                  <div className="text-center py-4 text-muted">
-                    <i className="fa-solid fa-bag-shopping fs-1 text-secondary mb-2 d-block"></i>
-                    <h6 className="fw-semibold text-dark">Belum Ada Riwayat Pesanan</h6>
-                    <p className="small mb-3">
-                      Anda belum pernah melakukan pemesanan buku. Mulai belanja sekarang!
+                  <div className="text-center py-5">
+                    <i className="fa-solid fa-receipt text-muted fs-1 mb-3"></i>
+                    <h5 className="font-serif fw-bold mb-1">Belum Ada Riwayat Pesanan</h5>
+                    <p className="small text-muted mb-3">
+                      Buku yang Anda beli akan langsung tercatat sebagai faktur resmi di halaman ini.
                     </p>
                     <Link to="/book" className="btn btn-primary btn-sm rounded-pill px-4">
-                      <i className="fa-solid fa-book-open me-1"></i> Jelajahi Katalog Buku
+                      <i className="fa-solid fa-book-open me-1"></i> Mulai Memilih Buku
                     </Link>
                   </div>
                 )}
-              </div>
-            </div>
-
-            {/* Rincian Akun */}
-            <div className="card border-0 shadow-sm rounded-4 mb-4">
-              <div className="card-header bg-white border-bottom py-3 px-4">
-                <h5 className="fw-bold mb-0 text-dark">
-                  <i className="fa-solid fa-address-card text-primary me-2"></i>
-                  Informasi Akun
-                </h5>
-              </div>
-              <div className="card-body p-4">
-                <div className="row g-4">
-                  <div className="col-sm-6">
-                    <label className="text-muted small fw-semibold">Nama Lengkap</label>
-                    <p className="fw-semibold text-dark mb-0 fs-6">{user?.fullName || user?.name || '-'}</p>
-                  </div>
-                  <div className="col-sm-6">
-                    <label className="text-muted small fw-semibold">Username</label>
-                    <p className="fw-semibold text-dark mb-0 fs-6">@{user?.username || '-'}</p>
-                  </div>
-                  <div className="col-sm-6">
-                    <label className="text-muted small fw-semibold">Alamat Email</label>
-                    <p className="fw-semibold text-dark mb-0 fs-6">{user?.email || '-'}</p>
-                  </div>
-                  <div className="col-sm-6">
-                    <label className="text-muted small fw-semibold">Peran / Role</label>
-                    <p className="mb-0">
-                      <span
-                        className={`badge ${
-                          isAdmin ? 'bg-danger' : 'bg-primary'
-                        } text-uppercase px-2 py-1`}
-                      >
-                        {user?.role || 'customer'}
-                      </span>
-                    </p>
-                  </div>
-                  <div className="col-sm-6">
-                    <label className="text-muted small fw-semibold">ID Pengguna</label>
-                    <p className="fw-semibold text-dark mb-0 font-monospace">#{user?.id || '-'}</p>
-                  </div>
-                  <div className="col-sm-6">
-                    <label className="text-muted small fw-semibold">Tanggal Terdaftar</label>
-                    <p className="fw-semibold text-dark mb-0">{user?.registeredAt || 'Terdaftar Resmi'}</p>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
