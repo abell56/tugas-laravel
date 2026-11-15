@@ -1046,9 +1046,6 @@ function Admin({ defaultTab = 'book' }) {
                               </div>
                               <div>
                                 <div className="fw-bold text-dark">{genre.name}</div>
-                                <span className="badge bg-light text-secondary border small">
-                                  {genre.book_count ?? genre.bookCount ?? 0} Buku Terkait
-                                </span>
                               </div>
                             </div>
                           </td>
@@ -1328,9 +1325,6 @@ function Admin({ defaultTab = 'book' }) {
                             </td>
                             <td>
                               <div className="fw-bold text-dark">{author.name}</div>
-                              <span className="badge bg-light text-secondary border small">
-                                {author.total_books ?? author.totalBooks ?? 0} Karya Buku
-                              </span>
                             </td>
                             <td>
                               <p className="text-secondary small mb-0">

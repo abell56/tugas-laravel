@@ -209,7 +209,7 @@ function Login() {
 
                 {/* Kolom Kanan: Informasi Editorial & Suasana Toko */}
                 <div
-                  className="col-12 col-md-5 d-none d-md-flex flex-column justify-content-between p-4 p-md-5"
+                  className="col-12 col-md-5 d-none d-md-flex flex-column justify-content-center p-4 p-md-5"
                   style={{
                     backgroundColor: 'var(--bg-secondary)',
                     borderLeft: '1px solid var(--border-subtle)',
@@ -224,54 +224,9 @@ function Login() {
                     <h4 className="editorial-heading fw-bold mb-3" style={{ fontSize: '1.4rem' }}>
                       Ruang Baca Pribadi Anda
                     </h4>
-                    <p className="small mb-4" style={{ color: 'var(--text-secondary)', lineHeight: '1.7' }}>
+                    <p className="small mb-0" style={{ color: 'var(--text-secondary)', lineHeight: '1.7' }}>
                       Masuk untuk meninjau status pesanan faktur, menyimpan koleksi buku impian, dan berbelanja naskah bermutu.
                     </p>
-
-                    <div className="d-flex flex-column gap-3 mb-4">
-                      <div className="d-flex align-items-center gap-3">
-                        <div
-                          className="rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0"
-                          style={{
-                            width: '38px',
-                            height: '38px',
-                            backgroundColor: 'var(--bg-surface)',
-                            color: 'var(--accent-primary)',
-                            border: '1px solid var(--border-subtle)',
-                          }}
-                        >
-                          <i className="fa-solid fa-shield-halved"></i>
-                        </div>
-                        <div>
-                          <h6 className="fw-bold mb-0 small" style={{ color: 'var(--text-primary)' }}>Peran Administrator</h6>
-                          <small className="text-muted">Akses kurasi katalog, pesanan, dan anggota</small>
-                        </div>
-                      </div>
-
-                      <div className="d-flex align-items-center gap-3">
-                        <div
-                          className="rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0"
-                          style={{
-                            width: '38px',
-                            height: '38px',
-                            backgroundColor: 'var(--bg-surface)',
-                            color: 'var(--accent-secondary)',
-                            border: '1px solid var(--border-subtle)',
-                          }}
-                        >
-                          <i className="fa-solid fa-book-open"></i>
-                        </div>
-                        <div>
-                          <h6 className="fw-bold mb-0 small" style={{ color: 'var(--text-primary)' }}>Peran Pembaca (Customer)</h6>
-                          <small className="text-muted">Katalog interaktif & riwayat belanja lunas</small>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-3 border-top small" style={{ borderColor: 'var(--border-subtle) !important', color: 'var(--text-muted)' }}>
-                    <i className="fa-solid fa-info-circle me-1"></i>
-                    Gunakan kredensial yang tersinkronisasi dengan database MySQL.
                   </div>
                 </div>
               </div>
