@@ -175,10 +175,15 @@ function Book() {
     }).format(num)
   }
 
-  // Ambil daftar kategori unik
+  // Ambil daftar kategori dari master genres API & buku
   const categories = [
     'Semua',
-    ...Array.from(new Set(bookList.map((b) => b.category).filter(Boolean))),
+    ...Array.from(
+      new Set([
+        ...(genreList && genreList.length > 0 ? genreList.map((g) => g.name) : []),
+        ...bookList.map((b) => b.category),
+      ].filter(Boolean))
+    ),
   ]
 
   // Filter buku untuk pencarian dan kategori
