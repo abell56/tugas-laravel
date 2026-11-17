@@ -8,6 +8,32 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [alert, setAlert] = useState(null)
 
+  // Internal Genre & Author fallback
+  const [internalGenres, setInternalGenres] = useState(genreList)
+  const [internalAuthors, setInternalAuthors] = useState(authorList)
+
+  useEffect(() => {
+    if (genreList.length > 0) setInternalGenres(genreList)
+  }, [genreList])
+
+  useEffect(() => {
+    if (authorList.length > 0) setInternalAuthors(authorList)
+  }, [authorList])
+
+  useEffect(() => {
+    fetch('/api/genres')
+      .then((r) => r.json())
+      .then((d) => Array.isArray(d) && d.length > 0 && setInternalGenres(d))
+      .catch(() => {})
+    fetch('/api/authors')
+      .then((r) => r.json())
+      .then((d) => Array.isArray(d) && d.length > 0 && setInternalAuthors(d))
+      .catch(() => {})
+  }, [])
+
+  const activeGenres = internalGenres.length > 0 ? internalGenres : genreList
+  const activeAuthors = internalAuthors.length > 0 ? internalAuthors : authorList
+
   // State Modal Edit & Hapus
   const [bookToEdit, setBookToEdit] = useState(null)
   const [bookToDelete, setBookToDelete] = useState(null)
@@ -65,8 +91,8 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
       return
     }
 
-    const defaultGenre = genreList[0]?.id || 1
-    const defaultAuthor = authorList[0]?.id || 1
+    const defaultGenre = activeGenres[0]?.id || 1
+    const defaultAuthor = activeAuthors[0]?.id || 1
 
     setIsSubmitting(true)
     try {
@@ -81,7 +107,7 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
           description: formData.description.trim(),
           price: Number(formData.price) || 85000,
           stock: Number(formData.stock) || 10,
-          cover_photo: formData.cover_photo.trim(),
+          cover_photo: formData.cover_photo?.trim() || 'default_book.jpg',
           genre_id: Number(formData.genre_id) || defaultGenre,
           author_id: Number(formData.author_id) || defaultAuthor,
         }),
@@ -101,7 +127,11 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
         setShowCreateForm(false)
         fetchBooks()
       } else {
-        alert(result.message || 'Gagal menyimpan buku ke database.')
+        const errorMsg =
+          result.message ||
+          result.error ||
+          (result.errors ? Object.values(result.errors).flat().join(', ') : 'Gagal menyimpan buku ke database.')
+        alert(errorMsg)
       }
     } catch (err) {
       console.error('Error create book:', err)
@@ -118,6 +148,9 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
 
     setIsSubmitting(true)
     try {
+      const defaultGenre = activeGenres[0]?.id || 1
+      const defaultAuthor = activeAuthors[0]?.id || 1
+
       const response = await fetch(`/api/books/${bookToEdit.id}`, {
         method: 'PUT',
         headers: {
@@ -126,12 +159,12 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
           'X-Role': 'admin',
         },
         body: JSON.stringify({
-          description: bookToEdit.description,
-          price: Number(bookToEdit.price),
-          stock: Number(bookToEdit.stock),
-          cover_photo: bookToEdit.cover_photo || '',
-          genre_id: Number(bookToEdit.genre_id),
-          author_id: Number(bookToEdit.author_id),
+          description: bookToEdit.description?.trim(),
+          price: Number(bookToEdit.price) || 0,
+          stock: Number(bookToEdit.stock) || 0,
+          cover_photo: bookToEdit.cover_photo?.trim() || 'default_book.jpg',
+          genre_id: Number(bookToEdit.genre_id) || defaultGenre,
+          author_id: Number(bookToEdit.author_id) || defaultAuthor,
         }),
       })
 
@@ -141,7 +174,11 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
         setBookToEdit(null)
         fetchBooks()
       } else {
-        alert(result.message || 'Gagal memperbarui data buku.')
+        const errorMsg =
+          result.message ||
+          result.error ||
+          (result.errors ? Object.values(result.errors).flat().join(', ') : 'Gagal memperbarui data buku.')
+        alert(errorMsg)
       }
     } catch (err) {
       console.error('Error update book:', err)
@@ -335,7 +372,7 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
                       onChange={handleInputChange}
                     >
                       <option value="">-- Pilih Genre --</option>
-                      {genreList.map((g) => (
+                      {activeGenres.map((g) => (
                         <option key={g.id} value={g.id}>
                           {g.name}
                         </option>
@@ -354,7 +391,7 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
                       onChange={handleInputChange}
                     >
                       <option value="">-- Pilih Penulis --</option>
-                      {authorList.map((a) => (
+                      {activeAuthors.map((a) => (
                         <option key={a.id} value={a.id}>
                           {a.name}
                         </option>
@@ -670,7 +707,7 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
                               setBookToEdit({ ...bookToEdit, author_id: e.target.value })
                             }
                           >
-                            {authorList.map((a) => (
+                            {activeAuthors.map((a) => (
                               <option key={a.id} value={a.id}>
                                 {a.name}
                               </option>
@@ -689,7 +726,7 @@ function AdminBooks({ genreList = [], authorList = [], onStatsChange }) {
                               setBookToEdit({ ...bookToEdit, genre_id: e.target.value })
                             }
                           >
-                            {genreList.map((g) => (
+                            {activeGenres.map((g) => (
                               <option key={g.id} value={g.id}>
                                 {g.name}
                               </option>

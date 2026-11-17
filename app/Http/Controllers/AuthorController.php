@@ -28,9 +28,16 @@ class AuthorController extends Controller
         // Validasi input data
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'photo' => 'required|string|max:255',
-            'bio' => 'required|string',
+            'photo' => 'nullable|string',
+            'bio' => 'nullable|string',
         ]);
+
+        if (empty($validated['photo'])) {
+            $validated['photo'] = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop';
+        }
+        if (empty($validated['bio'])) {
+            $validated['bio'] = 'Penulis sastra dan naskah literasi.';
+        }
 
         // Menyimpan data author baru
         $author = Author::create($validated);
@@ -82,9 +89,16 @@ class AuthorController extends Controller
         // Validasi input data
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
-            'photo' => 'sometimes|required|string|max:255',
-            'bio' => 'sometimes|required|string',
+            'photo' => 'nullable|string',
+            'bio' => 'nullable|string',
         ]);
+
+        if (array_key_exists('photo', $validated) && empty($validated['photo'])) {
+            $validated['photo'] = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop';
+        }
+        if (array_key_exists('bio', $validated) && empty($validated['bio'])) {
+            $validated['bio'] = 'Penulis sastra dan naskah literasi.';
+        }
 
         // Memperbarui data author
         $author->update($validated);

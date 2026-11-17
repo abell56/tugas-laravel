@@ -181,10 +181,14 @@ function Admin({ defaultTab = 'book' }) {
     try {
       const response = await fetch('/api/genres', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-Role': 'admin',
+        },
         body: JSON.stringify({
           name: genreForm.name.trim(),
-          description: genreForm.description.trim(),
+          description: genreForm.description.trim() || 'Kategori karya buku',
         }),
       })
 
@@ -195,33 +199,16 @@ function Admin({ defaultTab = 'book' }) {
         setGenreForm({ name: '', description: '' })
         setShowGenreForm(false)
         reloadData()
-      } else if (response.status === 400 || response.status === 500) {
-        triggerAlert(result.error || 'Gagal menambahkan genre.', 'danger')
       } else {
-        // Fallback offline
-        const newGenre = {
-          id: Date.now(),
-          name: genreForm.name.trim(),
-          description: genreForm.description.trim(),
-          book_count: 0,
-        }
-        setGenreList((prev) => [newGenre, ...prev])
-        triggerAlert(`Genre "${genreForm.name.trim()}" berhasil ditambahkan!`)
-        setGenreForm({ name: '', description: '' })
-        setShowGenreForm(false)
+        const errorMsg =
+          result.message ||
+          result.error ||
+          (result.errors ? Object.values(result.errors).flat().join(', ') : 'Gagal menambahkan genre.')
+        triggerAlert(errorMsg, 'danger')
       }
-    } catch {
-      // Offline fallback
-      const newGenre = {
-        id: Date.now(),
-        name: genreForm.name.trim(),
-        description: genreForm.description.trim(),
-        book_count: 0,
-      }
-      setGenreList((prev) => [newGenre, ...prev])
-      triggerAlert(`Genre "${genreForm.name.trim()}" berhasil ditambahkan!`)
-      setGenreForm({ name: '', description: '' })
-      setShowGenreForm(false)
+    } catch (err) {
+      console.error('Error create genre:', err)
+      triggerAlert('Terjadi kesalahan jaringan saat menambahkan genre.', 'danger')
     } finally {
       setSavingGenre(false)
     }
@@ -242,10 +229,14 @@ function Admin({ defaultTab = 'book' }) {
     try {
       const response = await fetch(`/api/genres/${genreToEdit.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-Role': 'admin',
+        },
         body: JSON.stringify({
           name: genreToEdit.name.trim(),
-          description: genreToEdit.description.trim(),
+          description: genreToEdit.description?.trim() || 'Kategori karya buku',
         }),
       })
 
@@ -253,39 +244,18 @@ function Admin({ defaultTab = 'book' }) {
 
       if (response.ok) {
         triggerAlert(result.message || `Genre "${genreToEdit.name.trim()}" berhasil diperbarui!`)
-        setGenreList((prev) =>
-          prev.map((g) =>
-            g.id === genreToEdit.id
-              ? { ...g, name: genreToEdit.name.trim(), description: genreToEdit.description.trim() }
-              : g
-          )
-        )
         setGenreToEdit(null)
-      } else if (response.status === 400 || response.status === 404) {
-        triggerAlert(result.error || 'Gagal memperbarui genre.', 'danger')
+        reloadData()
       } else {
-        // Mode offline fallback
-        setGenreList((prev) =>
-          prev.map((g) =>
-            g.id === genreToEdit.id
-              ? { ...g, name: genreToEdit.name.trim(), description: genreToEdit.description.trim() }
-              : g
-          )
-        )
-        triggerAlert(`Genre "${genreToEdit.name.trim()}" berhasil diperbarui!`)
-        setGenreToEdit(null)
+        const errorMsg =
+          result.message ||
+          result.error ||
+          (result.errors ? Object.values(result.errors).flat().join(', ') : 'Gagal memperbarui genre.')
+        triggerAlert(errorMsg, 'danger')
       }
-    } catch {
-      // Mode offline fallback
-      setGenreList((prev) =>
-        prev.map((g) =>
-          g.id === genreToEdit.id
-            ? { ...g, name: genreToEdit.name.trim(), description: genreToEdit.description.trim() }
-            : g
-        )
-      )
-      triggerAlert(`Genre "${genreToEdit.name.trim()}" berhasil diperbarui!`)
-      setGenreToEdit(null)
+    } catch (err) {
+      console.error('Error update genre:', err)
+      triggerAlert('Terjadi kesalahan jaringan saat update genre.', 'danger')
     } finally {
       setIsSubmitting(false)
     }
@@ -301,27 +271,28 @@ function Admin({ defaultTab = 'book' }) {
     try {
       const response = await fetch(`/api/genres/${genreToDelete.id}`, {
         method: 'DELETE',
+        headers: {
+          'Accept': 'application/json',
+          'X-Role': 'admin',
+        },
       })
 
       const result = await response.json().catch(() => ({}))
 
       if (response.ok) {
         triggerAlert(result.message || `Genre "${genreToDelete.name}" berhasil dihapus!`)
-        setGenreList((prev) => prev.filter((g) => g.id !== genreToDelete.id))
         setGenreToDelete(null)
-      } else if (response.status === 400 || response.status === 404) {
-        triggerAlert(result.error || 'Gagal menghapus genre.', 'danger')
+        reloadData()
       } else {
-        // Mode offline fallback
-        setGenreList((prev) => prev.filter((g) => g.id !== genreToDelete.id))
-        triggerAlert(`Genre "${genreToDelete.name}" berhasil dihapus!`)
-        setGenreToDelete(null)
+        const errorMsg =
+          result.message ||
+          result.error ||
+          'Gagal menghapus genre.'
+        triggerAlert(errorMsg, 'danger')
       }
-    } catch {
-      // Mode offline fallback
-      setGenreList((prev) => prev.filter((g) => g.id !== genreToDelete.id))
-      triggerAlert(`Genre "${genreToDelete.name}" berhasil dihapus!`)
-      setGenreToDelete(null)
+    } catch (err) {
+      console.error('Error delete genre:', err)
+      triggerAlert('Terjadi kesalahan jaringan saat menghapus genre.', 'danger')
     } finally {
       setIsSubmitting(false)
     }
@@ -361,11 +332,15 @@ function Admin({ defaultTab = 'book' }) {
 
       const response = await fetch('/api/authors', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-Role': 'admin',
+        },
         body: JSON.stringify({
           name: authorForm.name.trim(),
           photo: photoVal,
-          bio: authorForm.bio.trim(),
+          bio: authorForm.bio.trim() || 'Penulis sastra dan naskah literasi.',
         }),
       })
 
@@ -376,37 +351,16 @@ function Admin({ defaultTab = 'book' }) {
         setAuthorForm({ name: '', photo: '', bio: '' })
         setShowAuthorForm(false)
         reloadData()
-      } else if (response.status === 400 || response.status === 500) {
-        triggerAlert(result.error || 'Gagal menambahkan author.', 'danger')
       } else {
-        // Mode offline fallback
-        const newAuthor = {
-          id: Date.now(),
-          name: authorForm.name.trim(),
-          photo: photoVal,
-          bio: authorForm.bio.trim(),
-          total_books: 0,
-        }
-        setAuthorList((prev) => [newAuthor, ...prev])
-        triggerAlert(`Penulis "${authorForm.name.trim()}" berhasil ditambahkan!`)
-        setAuthorForm({ name: '', photo: '', bio: '' })
-        setShowAuthorForm(false)
+        const errorMsg =
+          result.message ||
+          result.error ||
+          (result.errors ? Object.values(result.errors).flat().join(', ') : 'Gagal menambahkan author.')
+        triggerAlert(errorMsg, 'danger')
       }
-    } catch {
-      // Mode offline fallback
-      const defaultPhoto =
-        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop'
-      const newAuthor = {
-        id: Date.now(),
-        name: authorForm.name.trim(),
-        photo: authorForm.photo.trim() || defaultPhoto,
-        bio: authorForm.bio.trim(),
-        total_books: 0,
-      }
-      setAuthorList((prev) => [newAuthor, ...prev])
-      triggerAlert(`Penulis "${authorForm.name.trim()}" berhasil ditambahkan!`)
-      setAuthorForm({ name: '', photo: '', bio: '' })
-      setShowAuthorForm(false)
+    } catch (err) {
+      console.error('Error create author:', err)
+      triggerAlert('Terjadi kesalahan jaringan saat menambahkan author.', 'danger')
     } finally {
       setSavingAuthor(false)
     }
@@ -431,11 +385,15 @@ function Admin({ defaultTab = 'book' }) {
 
       const response = await fetch(`/api/authors/${authorToEdit.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-Role': 'admin',
+        },
         body: JSON.stringify({
           name: authorToEdit.name.trim(),
           photo: photoVal,
-          bio: authorToEdit.bio.trim(),
+          bio: authorToEdit.bio.trim() || 'Penulis sastra dan naskah literasi.',
         }),
       })
 
@@ -443,56 +401,18 @@ function Admin({ defaultTab = 'book' }) {
 
       if (response.ok) {
         triggerAlert(result.message || `Penulis "${authorToEdit.name.trim()}" berhasil diperbarui!`)
-        setAuthorList((prev) =>
-          prev.map((a) =>
-            a.id === authorToEdit.id
-              ? {
-                  ...a,
-                  name: authorToEdit.name.trim(),
-                  photo: photoVal,
-                  bio: authorToEdit.bio.trim(),
-                }
-              : a
-          )
-        )
         setAuthorToEdit(null)
-      } else if (response.status === 400 || response.status === 404) {
-        triggerAlert(result.error || 'Gagal memperbarui author.', 'danger')
+        reloadData()
       } else {
-        // Mode offline fallback
-        setAuthorList((prev) =>
-          prev.map((a) =>
-            a.id === authorToEdit.id
-              ? {
-                  ...a,
-                  name: authorToEdit.name.trim(),
-                  photo: photoVal,
-                  bio: authorToEdit.bio.trim(),
-                }
-              : a
-          )
-        )
-        triggerAlert(`Penulis "${authorToEdit.name.trim()}" berhasil diperbarui!`)
-        setAuthorToEdit(null)
+        const errorMsg =
+          result.message ||
+          result.error ||
+          (result.errors ? Object.values(result.errors).flat().join(', ') : 'Gagal memperbarui author.')
+        triggerAlert(errorMsg, 'danger')
       }
-    } catch {
-      // Mode offline fallback
-      const defaultPhoto =
-        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop'
-      setAuthorList((prev) =>
-        prev.map((a) =>
-          a.id === authorToEdit.id
-            ? {
-                ...a,
-                name: authorToEdit.name.trim(),
-                photo: authorToEdit.photo.trim() || defaultPhoto,
-                bio: authorToEdit.bio.trim(),
-              }
-            : a
-        )
-      )
-      triggerAlert(`Penulis "${authorToEdit.name.trim()}" berhasil diperbarui!`)
-      setAuthorToEdit(null)
+    } catch (err) {
+      console.error('Error update author:', err)
+      triggerAlert('Terjadi kesalahan jaringan saat update author.', 'danger')
     } finally {
       setIsSubmitting(false)
     }
@@ -508,27 +428,28 @@ function Admin({ defaultTab = 'book' }) {
     try {
       const response = await fetch(`/api/authors/${authorToDelete.id}`, {
         method: 'DELETE',
+        headers: {
+          'Accept': 'application/json',
+          'X-Role': 'admin',
+        },
       })
 
       const result = await response.json().catch(() => ({}))
 
       if (response.ok) {
         triggerAlert(result.message || `Penulis "${authorToDelete.name}" berhasil dihapus!`)
-        setAuthorList((prev) => prev.filter((a) => a.id !== authorToDelete.id))
         setAuthorToDelete(null)
-      } else if (response.status === 400 || response.status === 404) {
-        triggerAlert(result.error || 'Gagal menghapus author.', 'danger')
+        reloadData()
       } else {
-        // Mode offline fallback
-        setAuthorList((prev) => prev.filter((a) => a.id !== authorToDelete.id))
-        triggerAlert(`Penulis "${authorToDelete.name}" berhasil dihapus!`)
-        setAuthorToDelete(null)
+        const errorMsg =
+          result.message ||
+          result.error ||
+          'Gagal menghapus author.'
+        triggerAlert(errorMsg, 'danger')
       }
-    } catch {
-      // Mode offline fallback
-      setAuthorList((prev) => prev.filter((a) => a.id !== authorToDelete.id))
-      triggerAlert(`Penulis "${authorToDelete.name}" berhasil dihapus!`)
-      setAuthorToDelete(null)
+    } catch (err) {
+      console.error('Error delete author:', err)
+      triggerAlert('Terjadi kesalahan jaringan saat menghapus author.', 'danger')
     } finally {
       setIsSubmitting(false)
     }

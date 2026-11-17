@@ -28,10 +28,14 @@ class BookController extends Controller
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'cover_photo' => 'required|string|max:255',
+            'cover_photo' => 'nullable|string',
             'genre_id' => 'required|exists:genres,id',
             'author_id' => 'required|exists:authors,id',
         ]);
+
+        if (empty($validated['cover_photo'])) {
+            $validated['cover_photo'] = 'default_book.jpg';
+        }
 
         $book = Book::create($validated);
         $book->load(['author', 'genre']);
@@ -79,10 +83,14 @@ class BookController extends Controller
             'description' => 'sometimes|required|string',
             'price' => 'sometimes|required|numeric|min:0',
             'stock' => 'sometimes|required|integer|min:0',
-            'cover_photo' => 'sometimes|required|string|max:255',
+            'cover_photo' => 'sometimes|nullable|string',
             'genre_id' => 'sometimes|required|exists:genres,id',
             'author_id' => 'sometimes|required|exists:authors,id',
         ]);
+
+        if (array_key_exists('cover_photo', $validated) && empty($validated['cover_photo'])) {
+            $validated['cover_photo'] = 'default_book.jpg';
+        }
 
         $book->update($validated);
         $book->load(['author', 'genre']);

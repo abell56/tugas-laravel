@@ -50,11 +50,15 @@ function AdminOrders({ onStatsChange }) {
     try {
       const res = await fetch(`/api/transactions/${orderToDelete.id}`, {
         method: 'DELETE',
+        headers: {
+          'Accept': 'application/json',
+          'X-Role': 'admin',
+        },
       })
       if (res.ok) {
         triggerAlert(`Faktur pesanan "${orderToDelete.order_number}" berhasil dihapus.`)
-        setOrderList((prev) => prev.filter((o) => o.id !== orderToDelete.id))
         setOrderToDelete(null)
+        fetchOrders()
       } else {
         triggerAlert('Gagal menghapus pesanan.', 'danger')
       }

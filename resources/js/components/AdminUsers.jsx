@@ -65,17 +65,8 @@ function AdminUsers({ onStatsChange }) {
           `Peran untuk "${userToEditRole.name}" berhasil diubah menjadi ${selectedRole.toUpperCase()}!`,
           'success'
         )
-        setUserList((prev) =>
-          prev.map((u) =>
-            u.id === userToEditRole.id
-              ? {
-                  ...u,
-                  role: selectedRole,
-                }
-              : u
-          )
-        )
         setUserToEditRole(null)
+        fetchUsers()
       } else {
         triggerAlert(data.message || 'Gagal memperbarui peran pengguna.', 'danger')
       }
@@ -95,13 +86,14 @@ function AdminUsers({ onStatsChange }) {
       const res = await fetch(`/api/users/${userToDelete.id}`, {
         method: 'DELETE',
         headers: {
+          'Accept': 'application/json',
           'X-Role': 'admin',
         },
       })
       if (res.ok) {
         triggerAlert(`Akun pengguna "${userToDelete.name}" berhasil dihapus.`)
-        setUserList((prev) => prev.filter((u) => u.id !== userToDelete.id))
         setUserToDelete(null)
+        fetchUsers()
       } else {
         triggerAlert('Gagal menghapus pengguna.', 'danger')
       }

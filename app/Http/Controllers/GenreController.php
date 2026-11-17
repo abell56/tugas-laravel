@@ -28,8 +28,12 @@ class GenreController extends Controller
         // Validasi input data
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'required|string',
+            'description' => 'nullable|string',
         ]);
+
+        if (empty($validated['description'])) {
+            $validated['description'] = 'Kategori karya buku';
+        }
 
         // Menyimpan data genre baru
         $genre = Genre::create($validated);
@@ -81,8 +85,12 @@ class GenreController extends Controller
         // Validasi input data
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
-            'description' => 'sometimes|required|string',
+            'description' => 'nullable|string',
         ]);
+
+        if (array_key_exists('description', $validated) && empty($validated['description'])) {
+            $validated['description'] = 'Kategori karya buku';
+        }
 
         // Memperbarui data genre
         $genre->update($validated);
